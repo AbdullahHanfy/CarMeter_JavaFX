@@ -5,13 +5,14 @@
  */
 package carmeter;
 
+/*Importing A class That acts as a Node to represent Google Map*/
+import Map.GMap;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -19,26 +20,35 @@ import javafx.stage.Stage;
  * @author Abdullah Hanfy
  */
 public class CarMeter extends Application {
-    
+
+    /*Initial paramter that will be used in Google Map*/
+    public static double latitude = 30.1005;
+    public static double longitude = 31.2777;
+    public static double speed = 0;
+
     @Override
     public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
+        /*Root Pane To add nodes*/
+        Pane root = new Pane();
         
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
+        /*Create a node of Google map as object from seperated class Called My Map*/
+        GMap mp = new GMap();
+        mp.createUI(root);
         
-        Scene scene = new Scene(root, 300, 250);
         
-        primaryStage.setTitle("Hello World!");
+        Scene scene = new Scene(root);
+
+        primaryStage.setTitle("CarMeter");
+
         primaryStage.setScene(scene);
+        /*To terminate all non-GUI threads when pressing exit buttons*/
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+        primaryStage.setX(bounds.getMinX());
+        primaryStage.setY(bounds.getMinY());
+        primaryStage.setWidth(bounds.getWidth());
+        primaryStage.setHeight(bounds.getHeight());
         primaryStage.show();
     }
 
@@ -48,5 +58,5 @@ public class CarMeter extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
+
 }
