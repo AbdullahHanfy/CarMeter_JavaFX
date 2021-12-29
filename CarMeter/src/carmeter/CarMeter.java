@@ -112,12 +112,12 @@ public class CarMeter extends Application {
         
         /*To terminate all non-GUI threads when pressing exit buttons*/
         primaryStage.setOnCloseRequest(event -> System.exit(0));
-        //Screen screen = Screen.getPrimary();
-        //Rectangle2D bounds = screen.getVisualBounds();
-       // primaryStage.setX(bounds.getMinX());
-       // primaryStage.setY(bounds.getMinY());
-       // primaryStage.setWidth(bounds.getWidth());
-       // primaryStage.setHeight(bounds.getHeight());
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+        primaryStage.setX(bounds.getMinX());
+        primaryStage.setY(bounds.getMinY());
+        primaryStage.setWidth(bounds.getWidth());
+        primaryStage.setHeight(bounds.getHeight());
         primaryStage.show();
     }
 
