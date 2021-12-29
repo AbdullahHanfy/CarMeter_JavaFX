@@ -6,8 +6,9 @@
 package carmeter;
 
 /*Importing A class That acts as a Node to represent Google Map*/
+import Gaugepkg.GaugeClass;
 import Map.GMap;
-
+import eu.hansolo.medusa.Gauge;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -24,6 +25,8 @@ import javafx.stage.Stage;
  */
 public class CarMeter extends Application {
 
+    GaugeClass gauge;
+
     int h = 800;
     Button start_button = new Button("start");
     StackPane start_pane = new StackPane();
@@ -36,8 +39,7 @@ public class CarMeter extends Application {
     Pane speedoMeter_pane = new Pane();
     Scene start_scene;
     Scene carMeter_scene;
-    
-    
+
     /*Initial paramter that will be used in Google Map*/
     public static double latitude = 30.1005;
     public static double longitude = 31.2777;
@@ -45,11 +47,13 @@ public class CarMeter extends Application {
 
     @Override
     public void init() {
+        gauge = new GaugeClass();
+
         carMeter_scene = new Scene(carMeter_pane, 1.5 * h, h);
         start_pane.getChildren().addAll(lb, start_button);
         start_scene = new Scene(start_pane);
         endTrip_pane.getChildren().add(stop);
-      
+
         speedoMeter_pane.setMaxWidth(h / 3);
         speedoMeter_pane.setMaxHeight(speedoMeter_pane.getMaxWidth());
         endTrip_pane.setMaxWidth(h / 7);
@@ -58,7 +62,9 @@ public class CarMeter extends Application {
         start_button.setTranslateY(50);
         lb.setTranslateY(-50);
 
-        //panes style
+        //panes 
+        speedoMeter_pane.getChildren().add(gauge.setGauge());
+
         start_pane.setStyle("-fx-background-color: rgba(20, 21, 24, 1);");
         endTrip_pane.setStyle("-fx-background-color: rgba(255, 177, 39, 1); -fx-background-radius: 75;");
         carMeter_pane.setStyle("-fx-background-color: rgba(18, 18, 18, 1);");
@@ -72,14 +78,13 @@ public class CarMeter extends Application {
     public void start(Stage primaryStage) {
         /*Root Pane To add nodes*/
         Pane root = new Pane();
-        
+
         /*Create a node of Google map as object from seperated class Called My Map*/
         GMap mp = new GMap();
         mp.createUI(carMeter_pane);
         carMeter_pane.getChildren().addAll(speedoMeter_pane, endTrip_pane);
-        
-        
-         primaryStage.setScene(start_scene);
+
+        primaryStage.setScene(start_scene);
         start_button.setOnAction((event) -> {
             primaryStage.setScene(carMeter_scene);
         });
@@ -98,18 +103,11 @@ public class CarMeter extends Application {
         speedoMeter_pane.setTranslateX(-(primaryStage.getWidth() / 2) + (speedoMeter_pane.getMaxWidth() * .77));
         speedoMeter_pane.setTranslateY(primaryStage.getHeight() / 2 - (speedoMeter_pane.getMaxHeight() * .77));
         stop.setStyle("-fx-background-color: rgba(0, 18, 18, 0.0); -fx-font-color: rgba(255, 255, 255); -fx-font:  bold 30px 'serif';");
-        
-
-        
 
         //primaryStage.setMaximized(false);
         //primaryStage.setm(false);
         primaryStage.setTitle("CarMeter APP");
 
-
-       
-
-        
         /*To terminate all non-GUI threads when pressing exit buttons*/
         primaryStage.setOnCloseRequest(event -> System.exit(0));
         Screen screen = Screen.getPrimary();
