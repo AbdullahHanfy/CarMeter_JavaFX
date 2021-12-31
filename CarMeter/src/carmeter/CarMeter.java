@@ -8,16 +8,30 @@ package carmeter;
 /*Importing A class That acts as a Node to represent Google Map*/
 import Gaugepkg.GaugeClass;
 import Map.GMap;
-import eu.hansolo.medusa.Gauge;
+import SerialCommunication.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import net.sf.marineapi.nmea.parser.SentenceFactory;
+import net.sf.marineapi.nmea.sentence.RMCSentence;
+import net.sf.marineapi.nmea.sentence.Sentence;
+import net.sf.marineapi.nmea.sentence.SentenceValidator;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import net.sf.marineapi.nmea.sentence.GGASentence;
+import javafx.scene.control.TextField;
+
 
 /**
  *
@@ -26,7 +40,7 @@ import javafx.stage.Stage;
 public class CarMeter extends Application {
 
     GaugeClass gauge;
-
+    SerialCommunication serialComm;
     int h = 800;
     Button start_button = new Button("start");
     StackPane start_pane = new StackPane();
@@ -39,6 +53,11 @@ public class CarMeter extends Application {
     Pane speedoMeter_pane = new Pane();
     Scene start_scene;
     Scene carMeter_scene;
+    Thread thread_readLine;
+    Text text_latitude;
+    Text text_longitude;
+    Text text_speed;
+    int flag_position=0;
 
     /*Initial paramter that will be used in Google Map*/
     public static double latitude = 30.1005;
@@ -47,8 +66,18 @@ public class CarMeter extends Application {
 
     @Override
     public void init() {
+        try {
+            serialComm=new SerialCommunication();
+            thread_readLine = new Thread(new ReadLine());
+        
+            //thread_readLine.start();
+         
+        } catch (Exception ex) {
+            System.out.println("Init Exception");
+            ex.printStackTrace();
+        }
         gauge = new GaugeClass();
-
+        serialComm=new SerialCommunication();
         carMeter_scene = new Scene(carMeter_pane, 1.5 * h, h);
         start_pane.getChildren().addAll(lb, start_button);
         start_scene = new Scene(start_pane);
@@ -76,6 +105,40 @@ public class CarMeter extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        
+                Button button1 = new Button("Start");
+        Button button2 = new Button("Stop");
+        button2.setDisable(true);
+      button1.setOnAction((ActionEvent event) -> {
+          try {
+              serialComm.connect();//contains thread
+          } catch (Exception ex) {
+              Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
+          }
+          if (thread_readLine.isAlive()==false){
+              thread_readLine.start();}
+          else {
+              thread_readLine.resume();
+          }
+          button1.setDisable(true);button2.setDisable(false);
+                } //start button
+                );
+      
+       button2.setOnAction(new EventHandler<ActionEvent>() {//stop button
+            @Override
+            public void handle(ActionEvent event) {
+                serialComm.disconnect();
+                if (thread_readLine.isAlive()==true){
+                    thread_readLine.suspend();
+                }
+                button2.setDisable(true);
+                button1.setDisable(false);
+                text_latitude.setText("");
+                text_longitude.setText("");
+                text_speed.setText("");
+                flag_position =0;
+            }
+        });
         /*Root Pane To add nodes*/
         Pane root = new Pane();
 
@@ -118,6 +181,51 @@ public class CarMeter extends Application {
         primaryStage.setHeight(bounds.getHeight());
         primaryStage.show();
     }
+    class ReadLine implements Runnable 
+    {
+        @Override
+        public void run ()
+        {  
+            while(true)
+            {
+            try {
+                while(serialComm.buf != null &&((serialComm.temp = serialComm.buf.readLine()) != null)){
+                    if (SentenceValidator.isValid(serialComm.temp)) {
+                    //System.out.println(serialComm.temp );
+                    
+                    SentenceFactory sf = SentenceFactory.getInstance();
+                    //if (sf.hasParser(serialComm.temp)){
+                    Sentence s= sf.createParser(serialComm.temp);
+                
+                    if("RMC".equals(s.getSentenceId())) { 
+				RMCSentence rmc= (RMCSentence) s;
+                                speed =rmc.getSpeed();
+                                System.out.println("RMC speed: " + rmc.getSpeed());
+                                
+                    }
+                    else if ("GGA".equals(s.getSentenceId())) {
+                            GGASentence gga = (GGASentence) s;
+                            latitude=gga.getPosition().getLatitude();
+                            longitude = gga.getPosition().getLongitude();
+                         
+                            text_latitude.setText(Double.toString( latitude));
+                            text_longitude.setText(Double.toString( longitude));
+                            //System.out.println("latitude: " + latitude);
+                            //System.out.println(",longitude: " + longitude);
+                            System.out.println("GGA position: " + gga.getPosition());
+                            flag_position=1;
+                    }
+                    //}
+                          }
+                }
+            } catch (Exception ex) {
+                    //ex.printStackTrace();
+                    System.out.println("please connect your mobile or make sure or if you are already connected make sure that you have gps now connected on your device");
+                }
+            }      
+        
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -127,3 +235,4 @@ public class CarMeter extends Application {
     }
 
 }
+
