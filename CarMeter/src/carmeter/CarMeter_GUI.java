@@ -11,7 +11,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,6 +43,8 @@ import javafx.stage.Stage;
  */
 public class CarMeter_GUI extends Application {
 
+    String writeTrips;
+    String lds, lts, lde, lte, time;
     int counter;
     String[][] trips;
     double appHeight = 800;
@@ -73,14 +80,15 @@ public class CarMeter_GUI extends Application {
 
     @Override
     public void init() {
+        String writeTrips = new String();
         gauge = GaugeBuilder.create().minValue(0).maxValue(220)
-                              .skinType(Gauge.SkinType.DIGITAL)
-                              .foregroundBaseColor(Color.rgb(0, 222, 249))
-                              .barColor(Color.rgb(0, 222, 249))
-                              .title("Speed")
-                              .unit("Km / h")
-                              .animated(true)
-                              .build();
+                .skinType(Gauge.SkinType.DIGITAL)
+                .foregroundBaseColor(Color.rgb(0, 222, 249))
+                .barColor(Color.rgb(0, 222, 249))
+                .title("Speed")
+                .unit("Km / h")
+                .animated(true)
+                .build();
         speedoMeter_pane.getChildren().add(gauge);
         savedTrips_pane.setMaxSize(.75 * appWidth, .75 * appHeight);
         endTrip_pane.setMaxSize(.5 * appWidth, .5 * appHeight);
@@ -147,7 +155,7 @@ public class CarMeter_GUI extends Application {
                 options[i].setText("");
                 options[i].setDisable(true);
             }
-
+            counter = 0;
         });
 
         viewTrips_button.setOnAction((ActionEvent event) -> {
@@ -235,6 +243,50 @@ public class CarMeter_GUI extends Application {
                 text_cleared = true;
             }
         });
+
+        save_button.setOnAction((ActionEvent event) -> {
+
+            lds = "55";
+            lte = "99";
+            lts = "44";
+            time = "66";
+
+            if (counter <= 5) {
+                writeTrips = trip_name.getText() + ";" + lts + ";" + lds + ";" + lte + ";" + lte + ";" + time + ";\n";
+            }
+            counter++;
+            
+             try {
+                    if (counter <= 5) {
+                        Files.write(Paths.get("C:\\Users\\WINDOWS\\Desktop\\ReadTrips\\sherif.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
+                    } else {
+                        System.out.println("no room for another save");
+                    }
+                } catch (IOException ex) {
+                    //exception handling left as an exercise for the reader
+                    Logger.getLogger(CarMeter_GUI.class.getName()).log(Level.SEVERE, null, ex);
+
+                }
+            
+            carMeter_pane.getChildren().clear();
+            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+            viewTrips_button.setDisable(false);
+            start_button.setDisable(false);
+            speedoMeter_pane.setOpacity(1);
+            trip_name.setText("Entter Your trip name HERE!");
+            text_cleared = false;
+        });
+        
+        cancel_button.setOnAction((event) -> {
+            carMeter_pane.getChildren().clear();
+            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+            viewTrips_button.setDisable(false);
+            start_button.setDisable(false);
+            speedoMeter_pane.setOpacity(1);
+            trip_name.setText("Entter Your trip name HERE!");
+            text_cleared = false;
+        });
+
         appHeight = carMeter_pane.getHeight();
         appWidth = carMeter_pane.getWidth();
 
@@ -265,6 +317,7 @@ public class CarMeter_GUI extends Application {
         primaryStage.setScene(carMeter_scene);
         primaryStage.show();
     }
+
     /**
      * @param args the command line arguments
      */
