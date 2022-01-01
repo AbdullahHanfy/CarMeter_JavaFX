@@ -5,6 +5,13 @@
  */
 package carmeter;
 
+import eu.hansolo.medusa.Gauge;
+import eu.hansolo.medusa.GaugeBuilder;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,9 +22,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -29,15 +38,17 @@ import javafx.stage.Stage;
  */
 public class CarMeter_GUI extends Application {
 
+    int counter;
+    String[][] trips;
     double appHeight = 800;
     double appWidth = 1200;
     boolean started = false;
     boolean text_cleared = false;
-
+    Gauge gauge;
     //declaretion of carMeter_scene and it's componants
     Scene carMeter_scene;
     StackPane carMeter_pane = new StackPane();
-    Pane speedoMeter_pane = new Pane();
+    StackPane speedoMeter_pane = new StackPane();
     Pane savedTrips_pane = new Pane();
     Pane viewTrip_pane = new Pane();
     VBox vbox = new VBox();
@@ -62,17 +73,25 @@ public class CarMeter_GUI extends Application {
 
     @Override
     public void init() {
-
+        gauge = GaugeBuilder.create().minValue(0).maxValue(220)
+                              .skinType(Gauge.SkinType.DIGITAL)
+                              .foregroundBaseColor(Color.rgb(0, 222, 249))
+                              .barColor(Color.rgb(0, 222, 249))
+                              .title("Speed")
+                              .unit("Km / h")
+                              .animated(true)
+                              .build();
+        speedoMeter_pane.getChildren().add(gauge);
         savedTrips_pane.setMaxSize(.75 * appWidth, .75 * appHeight);
         endTrip_pane.setMaxSize(.5 * appWidth, .5 * appHeight);
         viewTrip_pane.setMaxSize(.5 * appWidth, .5 * appHeight);
 
-        carMeter_pane.setStyle("-fx-background-color: rgba(18, 18, 18, 1);");
+        carMeter_pane.setStyle("-fx-background-color: rgba(230, 230, 230, 1);");
         savedTrips_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1);");
         endTrip_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1); -fx-border-color: rgba(213, 216, 219, 1);");
 
         viewTrip_pane.setStyle("-fx-background-color: rgba(170, 218, 255, 1);");
-        speedoMeter_pane.setStyle("-fx-background-color: rgba(232, 232, 232, 1); -fx-background-radius: 150;");
+        speedoMeter_pane.setStyle("-fx-background-color: rgba(0, 0, 0, 1); -fx-background-radius: 150;");
 
         start_button.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
         back_button.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
@@ -90,35 +109,85 @@ public class CarMeter_GUI extends Application {
         carMeter_scene = new Scene(carMeter_pane, appWidth, appHeight);
 
         endTrip_pane.getChildren().addAll(back_button, trip_name, save_button, cancel_button);
-        
+
         viewTrip_pane.getChildren().add(viewTripBack_button);
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(8);
 
+        savedTrips_pane.getChildren().addAll(back_button1, vbox, clear);
+
+        vbox.setTranslateY(50);
+        vbox.setPadding(new Insets(10));
+        vbox.setSpacing(8);
+        Text title = new Text("Tracks");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         vbox.getChildren().add(title);
+        clear.setPrefWidth(200);
         for (int i = 0; i < 5; i++) {
             VBox.setMargin(options[i], new Insets(0, 0, 0, 8));
             vbox.getChildren().add(options[i]);
         }
-        savedTrips_pane.getChildren().addAll(back_button1, vbox, clear);
-
-        options[0].setText("Home");
-        vbox.setTranslateY(50);
     }
 
     @Override
     public void start(Stage primaryStage) {
 
+        ///////////////// DELETE BUTTON ACTION  \\\\\\\\\\\\\\\\\\
+        clear.setOnAction(ActionEvent -> {
+
+            try {
+                FileWriter myWriter = new FileWriter("C:\\Users\\WINDOWS\\Desktop\\ReadTrips\\sherif.txt");
+                myWriter.write("");
+                myWriter.close();
+            } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
+            for (int i = 0; i < counter; i++) {
+                options[i].setText("");
+                options[i].setDisable(true);
+            }
+
+        });
+
         viewTrips_button.setOnAction((ActionEvent event) -> {
             System.out.println("savedtrps clicked");
-            carMeter_pane.getChildren().add(savedTrips_pane);
+
             viewTrips_button.setDisable(true);
             speedoMeter_pane.setOpacity(0.5);
             start_button.setDisable(true);
-            //carMeter_pane.getChildren().clear();
-            //carMeter_pane.getChildren().remove(savedTrips_pane);
-            //savedTrips_pane.setDisable(true);
+            carMeter_pane.getChildren().add(savedTrips_pane);
+            counter = 0;
+            try {
+                File myObj = new File("C:\\Users\\WINDOWS\\Desktop\\ReadTrips\\sherif.txt");
+                Scanner myReader = new Scanner(myObj);
+
+                trips = new String[5][6];
+
+                while (myReader.hasNextLine() && counter < 5) {
+                    String data = myReader.nextLine();
+                    trips[counter] = data.split("[;]");
+                    for (String a : trips[counter]) {
+                        System.out.println(a);
+                    }
+                    counter++;
+                }
+
+                myReader.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < 5; i++) {
+                options[i].setDisable(true);
+            }
+
+            for (int i = 0; i < counter; i++) {
+                options[i].setText(trips[i][0]);
+                options[i].setDisable(false);
+            }
+
         });
         start_button.setOnAction((ActionEvent event) -> {
             if (started) {
@@ -166,31 +235,6 @@ public class CarMeter_GUI extends Application {
                 text_cleared = true;
             }
         });
-//        primaryStage.addEventHandler(MouseEvent.MOUSE_CLICKED, (event) -> {
-//            System.out.println("ok");
-//            appHeight = carMeter_pane.getHeight();
-//            appWidth = carMeter_pane.getWidth();
-//            speedoMeter_pane.setTranslateX(-appWidth / 2 + speedoMeter_pane.getMaxWidth() / 2);
-//            speedoMeter_pane.setTranslateY(carMeter_pane.getHeight() / 2 - speedoMeter_pane.getMaxHeight() / 2);
-//        });
-
-//        primaryStage.addEventHandler(EventType.ROOT, eventHandler);.
-//        setOnMouseClicked((event) -> {
-//            appHeight = carMeter_pane.getHeight();
-//            appWidth = carMeter_pane.getWidth();
-//            speedoMeter_pane.setTranslateX(-appWidth / 2 + speedoMeter_pane.getMaxWidth() / 2);
-//            speedoMeter_pane.setTranslateY(carMeter_pane.getHeight() / 2 - speedoMeter_pane.getMaxHeight() / 2);
-//
-//        });
-        options[0].setOnMouseClicked((MouseEvent event) -> {
-            savedTrips_pane.setOpacity(0.5);
-            vbox.setDisable(true);
-            back_button1.setDisable(true);
-            clear.setDisable(true);
-            carMeter_pane.getChildren().addAll(viewTrip_pane);
-        });
-//        
-        //back_button.setTranslateX(50);
         appHeight = carMeter_pane.getHeight();
         appWidth = carMeter_pane.getWidth();
 
@@ -212,7 +256,7 @@ public class CarMeter_GUI extends Application {
         start_button.setTranslateY(appHeight / 2 - 50);
 
         speedoMeter_pane.setMaxSize(appWidth / 4, appWidth / 4);
-        
+
         speedoMeter_pane.setTranslateX(-appWidth / 2 + speedoMeter_pane.getMaxWidth() / 2);
         speedoMeter_pane.setTranslateY(carMeter_pane.getHeight() / 2 - speedoMeter_pane.getMaxHeight() / 2);
 
@@ -221,7 +265,6 @@ public class CarMeter_GUI extends Application {
         primaryStage.setScene(carMeter_scene);
         primaryStage.show();
     }
-
     /**
      * @param args the command line arguments
      */
