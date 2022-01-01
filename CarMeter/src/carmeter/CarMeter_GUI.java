@@ -37,13 +37,18 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import net.sf.marineapi.nmea.parser.SentenceFactory;
+import net.sf.marineapi.nmea.sentence.GGASentence;
+import net.sf.marineapi.nmea.sentence.RMCSentence;
+import net.sf.marineapi.nmea.sentence.Sentence;
+import net.sf.marineapi.nmea.sentence.SentenceValidator;
 
 /**
  *
  * @author asmaa
  */
 public class CarMeter_GUI extends Application {
-
+    SerialCommunication serialComm ;
     String writeTrips;
     String lds, lts, lde, lte, time;
     int counter;
@@ -71,8 +76,9 @@ public class CarMeter_GUI extends Application {
     TextArea trip_name = new TextArea("Entter Your trip name HERE!");
     Button viewTrips_button = new Button("View saved trips");
     Text title = new Text("Tracks");
-    
-    
+    double latitude=30.0813565;double longitude=31.2383316; double speed =0;
+    Thread thread_readLine;
+    int flag_position=0;
 
     Hyperlink options[] = new Hyperlink[]{
         new Hyperlink(""),
@@ -142,7 +148,19 @@ public class CarMeter_GUI extends Application {
             vbox.getChildren().add(options[i]);
         }
         
+          try {
+            
+            serialComm=new SerialCommunication();
+            
+            thread_readLine = new Thread(new ReadLine());
         
+            //thread_readLine.start();
+         
+        } catch (Exception ex) {
+            System.out.println("Init Exception");
+            ex.printStackTrace();
+        }
+    
     }
 
     @Override
@@ -217,10 +235,30 @@ public class CarMeter_GUI extends Application {
                 carMeter_pane.getChildren().add(endTrip_pane);
                 start_button.setText("start trip");
                 started = false;
+                try {
+                    serialComm.connect();//contains thread
+                } catch (Exception ex) {
+                    Logger.getLogger(CarMeter_GUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                    if (thread_readLine.isAlive()==false){
+                            thread_readLine.start();}
+                    else {
+                    thread_readLine.resume();
+                        }
+                start_button.setDisable(true);
+            
             } else {
                 started = true;
 
                 start_button.setText("end trip");
+                 serialComm.disconnect();
+                if (thread_readLine.isAlive()==true){
+                    thread_readLine.suspend();
+                }
+                start_button.setDisable(true);
+                start_button.setDisable(false);
+                
+                flag_position =0;
             }
         });
         back_button.setOnAction((ActionEvent event) -> {
@@ -346,6 +384,50 @@ public class CarMeter_GUI extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+    
+    class ReadLine implements Runnable 
+    {
+        public void run ()
+        {  
+            while(true)
+            {
+            try {
+                while(serialComm.buf != null &&((serialComm.temp = serialComm.buf.readLine()) != null)){
+                    if (SentenceValidator.isValid(serialComm.temp)) {
+                    //System.out.println(serialComm.temp );
+                    
+                    SentenceFactory sf = SentenceFactory.getInstance();
+                    //if (sf.hasParser(serialComm.temp)){
+                    Sentence s= sf.createParser(serialComm.temp);
+                
+                    if("RMC".equals(s.getSentenceId())) { 
+				RMCSentence rmc= (RMCSentence) s;
+                                speed =rmc.getSpeed();
+                                System.out.println("RMC speed: " + rmc.getSpeed());
+                                
+                                
+                    }
+                    else if ("GGA".equals(s.getSentenceId())) {
+                            GGASentence gga = (GGASentence) s;
+                            latitude=gga.getPosition().getLatitude();
+                            longitude = gga.getPosition().getLongitude();
+                         
+                            //System.out.println("latitude: " + latitude);
+                            //System.out.println(",longitude: " + longitude);
+                            System.out.println("GGA position: " + gga.getPosition());
+                            flag_position=1;
+                    }
+                    //}
+                          }
+                }
+            } catch (Exception ex) {
+                    //ex.printStackTrace();
+                    System.out.println("please connect your mobile or make sure or if you are already connected make sure that you have gps now connected on your device");
+                }
+            }      
+        
+        }
     }
 
 }
