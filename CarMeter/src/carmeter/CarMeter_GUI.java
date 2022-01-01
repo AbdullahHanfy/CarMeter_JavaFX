@@ -5,6 +5,7 @@
  */
 package carmeter;
 
+import Map.GMap;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import java.io.File;
@@ -70,6 +71,8 @@ public class CarMeter_GUI extends Application {
     TextArea trip_name = new TextArea("Entter Your trip name HERE!");
     Button viewTrips_button = new Button("View saved trips");
     Text title = new Text("Tracks");
+    
+    
 
     Hyperlink options[] = new Hyperlink[]{
         new Hyperlink(""),
@@ -77,9 +80,12 @@ public class CarMeter_GUI extends Application {
         new Hyperlink(""),
         new Hyperlink(""),
         new Hyperlink("")};
-
+    GMap mp = new GMap();
+    
     @Override
     public void init() {
+        
+        mp.createUI(carMeter_pane);
         String writeTrips = new String();
         gauge = GaugeBuilder.create().minValue(0).maxValue(220)
                 .skinType(Gauge.SkinType.DIGITAL)
@@ -101,7 +107,7 @@ public class CarMeter_GUI extends Application {
         viewTrip_pane.setStyle("-fx-background-color: rgba(170, 218, 255, 1);");
         speedoMeter_pane.setStyle("-fx-background-color: rgba(0, 0, 0, 1); -fx-background-radius: 150;");
 
-        start_button.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        start_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
         back_button.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
         back_button1.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
         clear.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
@@ -135,16 +141,21 @@ public class CarMeter_GUI extends Application {
             VBox.setMargin(options[i], new Insets(0, 0, 0, 8));
             vbox.getChildren().add(options[i]);
         }
+        
+        
     }
 
     @Override
     public void start(Stage primaryStage) {
+        
+//        System.out.println(viewTripBack_button.getStyle());
+//        System.out.println("1");
 
         ///////////////// DELETE BUTTON ACTION  \\\\\\\\\\\\\\\\\\
         clear.setOnAction(ActionEvent -> {
 
             try {
-                FileWriter myWriter = new FileWriter("C:\\Users\\WINDOWS\\Desktop\\ReadTrips\\sherif.txt");
+                FileWriter myWriter = new FileWriter("files/saved_trips.txt");
                 myWriter.write("");
                 myWriter.close();
             } catch (IOException e) {
@@ -167,7 +178,7 @@ public class CarMeter_GUI extends Application {
             carMeter_pane.getChildren().add(savedTrips_pane);
             counter = 0;
             try {
-                File myObj = new File("C:\\Users\\WINDOWS\\Desktop\\ReadTrips\\sherif.txt");
+                File myObj = new File("files/saved_trips.txt");
                 Scanner myReader = new Scanner(myObj);
 
                 trips = new String[5][6];
@@ -214,7 +225,9 @@ public class CarMeter_GUI extends Application {
         });
         back_button.setOnAction((ActionEvent event) -> {
             carMeter_pane.getChildren().clear();
+            mp.createUI(carMeter_pane);
             carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+            
             viewTrips_button.setDisable(false);
             start_button.setDisable(false);
             speedoMeter_pane.setOpacity(1);
@@ -222,6 +235,7 @@ public class CarMeter_GUI extends Application {
         });
         back_button1.setOnAction((ActionEvent event) -> {
             carMeter_pane.getChildren().clear();
+            mp.createUI(carMeter_pane);
             carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
             viewTrips_button.setDisable(false);
             start_button.setDisable(false);
@@ -229,6 +243,7 @@ public class CarMeter_GUI extends Application {
         });
         viewTripBack_button.setOnAction((ActionEvent event) -> {
             carMeter_pane.getChildren().clear();
+            mp.createUI(carMeter_pane);
             carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, savedTrips_pane);
             savedTrips_pane.setOpacity(1);
             vbox.setDisable(false);
@@ -258,7 +273,7 @@ public class CarMeter_GUI extends Application {
             
              try {
                     if (counter <= 5) {
-                        Files.write(Paths.get("C:\\Users\\WINDOWS\\Desktop\\ReadTrips\\sherif.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
+                        Files.write(Paths.get("files/saved_trips.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
                     } else {
                         System.out.println("no room for another save");
                     }
@@ -286,12 +301,20 @@ public class CarMeter_GUI extends Application {
             trip_name.setText("Entter Your trip name HERE!");
             text_cleared = false;
         });
+        for(Hyperlink n : options){
+            n.setOnAction((event) -> {
+                carMeter_pane.getChildren().add(viewTrip_pane);
+                vbox.setDisable(true);
+                back_button1.setDisable(true);
+                clear.setDisable(true);
+            });
+        }
 
         appHeight = carMeter_pane.getHeight();
         appWidth = carMeter_pane.getWidth();
 
-        viewTrips_button.setTranslateX(-appWidth / 2 + 150);
-        viewTrips_button.setTranslateY(-appHeight / 2 + 30);
+        viewTrips_button.setTranslateX(appWidth / 2 - 150);
+        viewTrips_button.setTranslateY(appHeight / 2 -30);
         clear.setTranslateX(650);
         clear.setTranslateY(500);
 
@@ -304,8 +327,8 @@ public class CarMeter_GUI extends Application {
         cancel_button.setTranslateX(320);
         cancel_button.setTranslateY(appHeight / 2 - 100);
 
-        start_button.setTranslateX(appWidth / 2 - 100);
-        start_button.setTranslateY(appHeight / 2 - 50);
+        start_button.setTranslateX(appWidth / 2 - 150);
+        start_button.setTranslateY(appHeight / 2 - 100);
 
         speedoMeter_pane.setMaxSize(appWidth / 4, appWidth / 4);
 
