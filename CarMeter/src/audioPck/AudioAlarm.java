@@ -23,18 +23,26 @@ public class AudioAlarm {
     int Flag1 = 0;
     FlowPane pane = new FlowPane();
 
-    public void sound_init() {
-        audioFile = new File("//CarMeter//Speed_Alert.mp3"); // put the sound path here 
+    public AudioAlarm() {
+ audioFile = new File("//CarMeter//Speed_Alert.mp3"); // put the sound path here 
         audio = new Media(audioFile.toURI().toString());
         audioPlayer = new MediaPlayer(audio);
-
     }
+    
+    
+
+//    public void sound_init() {
+//        audioFile = new File("//CarMeter//Speed_Alert.mp3"); // put the sound path here 
+//        audio = new Media(audioFile.toURI().toString());
+//        audioPlayer = new MediaPlayer(audio);
+//
+//    }
 
     public void play_sound() {
         audioPlayer.play();
     }
 
-    public void pause_sound() {
+    public void stop_sound() {
         audioPlayer.stop();
     }
 }
