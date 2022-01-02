@@ -6,12 +6,14 @@
 package carmeter;
 
 import Map.GMap;
+import audioPck.AudioAlarm;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -46,6 +48,7 @@ import net.sf.marineapi.nmea.sentence.SentenceValidator;
  * @author asmaa
  */
 public class CarMeter extends Application {
+    AudioAlarm audio;
     SerialCommunication serialComm ;
     String writeTrips;
     String lds, lts, lde, lte, time;
@@ -94,7 +97,7 @@ public class CarMeter extends Application {
     
     @Override
     public void init() {
-        
+        audio= new AudioAlarm();
         mp.createUI(carMeter_pane);
         String writeTrips = new String();
         gauge = GaugeBuilder.create().minValue(0).maxValue(220)
@@ -414,6 +417,9 @@ public class CarMeter extends Application {
                     if("RMC".equals(s.getSentenceId())) { 
 				RMCSentence rmc= (RMCSentence) s;
                                 speed =rmc.getSpeed();
+                                gauge.setValue(speed);
+                                 if (speed >10){audio.play_sound();}
+                                else {audio.stop_sound();}
                                 System.out.println("RMC speed: " + rmc.getSpeed());
                                 
                                 
