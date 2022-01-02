@@ -6,6 +6,7 @@
 package Map;
 
 
+import static Map.ApiKey.ApiKey;
 import static carmeter.CarMeter.latitude;
 import static carmeter.CarMeter.longitude;
 
@@ -34,8 +35,8 @@ public class GMap implements MapComponentInitializedListener {
     MapOptions mapOptions;
     
     public GMap() {
-        mapView = new GoogleMapView("en", "AIzaSyA9_9-iMx5eq0xn1RKXl-6FSbGYZuIUPnk");
-        mapView.setKey("AIzaSyA9_9-iMx5eq0xn1RKXl-6FSbGYZuIUPnk");
+        mapView = new GoogleMapView("en", ApiKey);
+        mapView.setKey(ApiKey);
         
         mapView.addMapInitializedListener(this);
         mapView.setDisableDoubleClick(true);
