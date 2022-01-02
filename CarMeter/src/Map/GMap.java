@@ -5,7 +5,6 @@
  */
 package Map;
 
-
 import static Map.ApiKey.ApiKey;
 import static carmeter.CarMeter.latitude;
 import static carmeter.CarMeter.longitude;
@@ -33,78 +32,73 @@ public class GMap implements MapComponentInitializedListener {
     MarkerOptions markerOptions;
     Marker marker;
     MapOptions mapOptions;
-    
+
     public GMap() {
         mapView = new GoogleMapView("en", ApiKey);
         mapView.setKey(ApiKey);
-        
+
         mapView.addMapInitializedListener(this);
         mapView.setDisableDoubleClick(true);
         mapView.getWebview().getEngine().setOnAlert(new EventHandler<WebEvent<String>>() {
             @Override
-            public void handle(WebEvent event) {}
+            public void handle(WebEvent event) {
+            }
         });
 
     }
 
     @Override
     public void mapInitialized() {
-         //Set the initial properties of the map.
-    mapOptions = new MapOptions();
-    mapOptions.center(new LatLong(latitude, longitude))
-            .mapType(MapTypeIdEnum.ROADMAP)
-            .overviewMapControl(false)
-            .panControl(false)
-            .rotateControl(false)
-            .scaleControl(false)
-            .streetViewControl(false)
-            .zoomControl(false)
-            .zoom(17);
+        //Set the initial properties of the map.
+        mapOptions = new MapOptions();
+        mapOptions.center(new LatLong(latitude, longitude))
+                .mapType(MapTypeIdEnum.ROADMAP)
+                .overviewMapControl(false)
+                .panControl(false)
+                .rotateControl(false)
+                .scaleControl(false)
+                .streetViewControl(false)
+                .zoomControl(false)
+                .zoom(17);
 
-    map = mapView.createMap(mapOptions);
-    markerOptions = new MarkerOptions();
-    markerOptions.position( new LatLong(latitude, longitude) )
+        map = mapView.createMap(mapOptions);
+        markerOptions = new MarkerOptions();
+        markerOptions.position(new LatLong(latitude, longitude))
                 .visible(Boolean.TRUE)
                 .title("My Marker");
 
-    marker = new Marker( markerOptions );
-    map.addMarker(marker);
-    map.removeMarker(marker);
-                    
-    Thread t = new Thread( () -> {
-        while (true){
-           try {
-               Thread.sleep(2000);
-               Platform.runLater(() -> {
-                   
-                       
+        marker = new Marker(markerOptions);
+        map.addMarker(marker);
+        map.removeMarker(marker);
+
+        Thread t = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(2000);
+                    Platform.runLater(() -> {
+                        ////////////////////////    TODO pelase handle the showing of marker at start of applicaiton\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
                         map.removeMarker(marker);
-                       markerOptions = new MarkerOptions();
-                       markerOptions.position( new LatLong(latitude,longitude) )
-                        .visible(Boolean.TRUE)
-                        .title("My Marker");
-                         marker = new Marker( markerOptions );
+                        markerOptions = new MarkerOptions();
+                        markerOptions.position(new LatLong(latitude, longitude))
+                                .visible(Boolean.TRUE)
+                                .title("My Marker");
+                        marker = new Marker(markerOptions);
                         map.addMarker(marker);
                         map.setCenter(new LatLong(latitude, longitude));
-                        
-                   
-                 
-                       });
-           } catch( Exception ex ) {
-               ex.printStackTrace();
-           }
-    }});
+
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
         t.start();
 
-        
-        
-       
     }
-    
-    
+
     public void createUI(Pane parent) {
         BorderPane pane = new BorderPane();
-        
+
         pane.setCenter(mapView);
 
         parent.getChildren().add(pane);
