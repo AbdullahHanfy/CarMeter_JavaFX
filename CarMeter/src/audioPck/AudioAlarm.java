@@ -35,6 +35,6 @@ public class AudioAlarm {
     }
 
     public void pause_sound() {
-        audioPlayer.pause();
+        audioPlayer.stop();
     }
 }
