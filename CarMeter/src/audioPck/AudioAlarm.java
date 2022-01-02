@@ -24,7 +24,7 @@ public class AudioAlarm {
     FlowPane pane = new FlowPane();
 
     public AudioAlarm() {
- audioFile = new File("//CarMeter//Speed_Alert.mp3"); // put the sound path here 
+ audioFile = new File("files/Speed_Alert.mp3"); // put the sound path here 
         audio = new Media(audioFile.toURI().toString());
         audioPlayer = new MediaPlayer(audio);
     }
