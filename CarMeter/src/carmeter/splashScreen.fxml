@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="295.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="carmeter.FXMLDocumentController">
+   <children>
+      <Pane layoutX="14.0" layoutY="23.0" prefHeight="299.0" prefWidth="570.0" style="-fx-background-color: black;" AnchorPane.bottomAnchor="-13.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Line endX="462.0" layoutX="104.0" layoutY="250.0" startX="-100.0" stroke="#12ea48" strokeWidth="5.0" />
+            <Line endX="190.0" layoutX="12.0" layoutY="155.0" rotate="-90.3" startX="-101.0" stroke="#12ea48" strokeWidth="5.0" />
+            <Label layoutX="126.0" layoutY="48.0" prefHeight="73.0" prefWidth="380.0" text="Area51 Carmeter" textFill="#7aff46">
+               <font>
+                  <Font name="ACaslonPro-Semibold" size="50.0" />
+               </font>
+            </Label>
+            <Label layoutX="126.0" layoutY="111.0" text="Version 1.0" textFill="#fcf2f2">
+               <font>
+                  <Font name="System Bold Italic" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="228.0" layoutY="256.0" prefHeight="42.0" prefWidth="333.0" text="\@ 2021 ITI Java Course by Eng- Eman Hesham -- ES-42" textFill="#f8f8f8">
+               <font>
+                  <Font name="Cambria" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="progress" layoutX="369.0" layoutY="225.0" prefHeight="20.0" prefWidth="115.0" text="Loading" textFill="#fcf9f9">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <ProgressBar fx:id="progressBar" layoutX="363.0" layoutY="193.0" prefWidth="200.0" progress="0.0" />
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

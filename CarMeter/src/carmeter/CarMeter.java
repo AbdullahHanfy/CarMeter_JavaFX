@@ -7,6 +7,7 @@ package carmeter;
 
 import Map.GMap;
 import audioPck.AudioAlarm;
+import com.sun.javafx.application.LauncherImpl;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import java.io.File;
@@ -21,6 +22,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Preloader;
 import javafx.event.ActionEvent;
 
 import javafx.geometry.Insets;
@@ -48,6 +50,7 @@ import net.sf.marineapi.nmea.sentence.SentenceValidator;
  * @author asmaa
  */
 public class CarMeter extends Application {
+     private static final int COUNT_LIMIT = 10;
     AudioAlarm audio;
     SerialCommunication serialComm ;
     String writeTrips;
@@ -96,7 +99,14 @@ public class CarMeter extends Application {
     GMap mp = new GMap();
     
     @Override
-    public void init() {
+    public void init() throws Exception{
+         // Perform some heavy lifting (i.e. database start, check for application updates, etc. )
+        for (int i = 1; i <= COUNT_LIMIT; i++) {
+            double progress =(double) i/10;
+            System.out.println("progress: " +  progress);            
+            LauncherImpl.notifyPreloader(this, new Preloader.ProgressNotification(progress));
+            Thread.sleep(500);
+        }
         audio= new AudioAlarm();
         mp.createUI(carMeter_pane);
         String writeTrips = new String();
@@ -394,7 +404,7 @@ public class CarMeter extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        launch(args);
+        LauncherImpl.launchApplication(CarMeter.class, MyPreloader.class, args);
     }
     
     class ReadLine implements Runnable 
