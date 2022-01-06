@@ -63,10 +63,11 @@ public class CarMeter extends Application {
     SerialCommunication serialComm;
     String writeTrips;
     String long_start, lat_start, long_end, lat_end, time;
+    double dlong_start, dlat_start, dlong_end, dlat_end;
     int counter;
     String[][] trips;
-    double appHeight = 600;
-    double appWidth = 800;
+    double appHeight = 800;
+    double appWidth = 1200;
     boolean started = false;
     public static boolean connected_com = false;
 
@@ -343,7 +344,73 @@ public class CarMeter extends Application {
                     text_cleared = true;
                 }
             });
+            options[0].setOnAction((ActionEvent event) -> {
+                
+                dlong_start=Double.parseDouble(trips[0][1]);
+                dlat_start=Double.parseDouble(trips[0][2]);
+                dlong_end=Double.parseDouble(trips[0][3]);
+                dlat_end=Double.parseDouble(trips[0][4]);
+                
+                System.out.println(dlong_start+" "+dlat_start+" "+dlong_end+" "+dlat_end); // for trial
+                
+                carMeter_pane.getChildren().add(viewTrip_pane);
+                vbox.setDisable(true);
+                back_button1.setDisable(true);
+                clear.setDisable(true);
 
+            });
+            options[1].setOnAction((ActionEvent event) -> {
+                
+                dlong_start=Double.parseDouble(trips[1][1]);
+                dlat_start=Double.parseDouble(trips[1][2]);
+                dlong_end=Double.parseDouble(trips[1][3]);
+                dlat_end=Double.parseDouble(trips[1][4]);
+                
+                carMeter_pane.getChildren().add(viewTrip_pane);
+                vbox.setDisable(true);
+                back_button1.setDisable(true);
+                clear.setDisable(true);
+
+            });
+            options[2].setOnAction((ActionEvent event) -> {
+                
+                dlong_start=Double.parseDouble(trips[2][1]);
+                dlat_start=Double.parseDouble(trips[2][2]);
+                dlong_end=Double.parseDouble(trips[2][3]);
+                dlat_end=Double.parseDouble(trips[2][4]);
+                
+                carMeter_pane.getChildren().add(viewTrip_pane);
+                vbox.setDisable(true);
+                back_button1.setDisable(true);
+                clear.setDisable(true);
+
+            });
+            options[3].setOnAction((ActionEvent event) -> {
+                
+                dlong_start=Double.parseDouble(trips[3][1]);
+                dlat_start=Double.parseDouble(trips[3][2]);
+                dlong_end=Double.parseDouble(trips[3][3]);
+                dlat_end=Double.parseDouble(trips[3][4]);
+                
+                carMeter_pane.getChildren().add(viewTrip_pane);
+                vbox.setDisable(true);
+                back_button1.setDisable(true);
+                clear.setDisable(true);
+
+            });
+            options[4].setOnAction((ActionEvent event) -> {
+                
+                dlong_start=Double.parseDouble(trips[4][1]);
+                dlat_start=Double.parseDouble(trips[4][2]);
+                dlong_end=Double.parseDouble(trips[4][3]);
+                dlat_end=Double.parseDouble(trips[4][4]);
+                
+                carMeter_pane.getChildren().add(viewTrip_pane);
+                vbox.setDisable(true);
+                back_button1.setDisable(true);
+                clear.setDisable(true);
+
+            });
             save_button.setOnAction((ActionEvent event) -> {
 
                 time ="0.0";
