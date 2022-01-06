@@ -6,6 +6,8 @@
 package Map;
 
 import static Map.ApiKey.ApiKey;
+import carmeter.CarMeter;
+import static carmeter.CarMeter.flag_position;
 import static carmeter.CarMeter.latitude;
 import static carmeter.CarMeter.longitude;
 
@@ -25,6 +27,7 @@ import javafx.scene.web.WebEvent;
  * @author Abdullah Hanfy
  */
 public class GMap implements MapComponentInitializedListener {
+    public static Thread t;
 
     GoogleMapView mapView;
     GoogleMap map;
@@ -51,7 +54,7 @@ public class GMap implements MapComponentInitializedListener {
     public void mapInitialized() {
         //Set the initial properties of the map.
         mapOptions = new MapOptions();
-        mapOptions.center(new LatLong(latitude, longitude))
+        mapOptions.center(new LatLong(30.033333, 31.233334))
                 .mapType(MapTypeIdEnum.ROADMAP)
                 .overviewMapControl(false)
                 .panControl(false)
@@ -59,32 +62,43 @@ public class GMap implements MapComponentInitializedListener {
                 .scaleControl(false)
                 .streetViewControl(false)
                 .zoomControl(false)
-                .zoom(17);
+                .zoom(10);
 
         map = mapView.createMap(mapOptions);
+
         markerOptions = new MarkerOptions();
-        markerOptions.position(new LatLong(latitude, longitude))
+        markerOptions.position(new LatLong(30.033333, 30.033333))
                 .visible(Boolean.TRUE)
                 .title("My Marker");
 
         marker = new Marker(markerOptions);
-        map.addMarker(marker);
-        map.removeMarker(marker);
+//        if (flag_position == 1) {
+//            map.addMarker(marker);
+//        } else {
+//            map.removeMarker(marker);
+//        }
 
-        Thread t = new Thread(() -> {
+         t = new Thread(() -> {
             while (true) {
                 try {
                     Thread.sleep(2000);
                     Platform.runLater(() -> {
                         ////////////////////////    TODO pelase handle the showing of marker at start of applicaiton\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-                        map.removeMarker(marker);
-                        markerOptions = new MarkerOptions();
-                        markerOptions.position(new LatLong(latitude, longitude))
-                                .visible(Boolean.TRUE)
-                                .title("My Marker");
-                        marker = new Marker(markerOptions);
-                        map.addMarker(marker);
-                        map.setCenter(new LatLong(latitude, longitude));
+                        if (flag_position == 1 && latitude > 10.0) {
+                            map.removeMarker(marker);
+                            markerOptions = new MarkerOptions();
+                            markerOptions.position(new LatLong(latitude, longitude))
+                                    .visible(Boolean.TRUE)
+                                    .title("My Marker");
+                            marker = new Marker(markerOptions);
+                            map.addMarker(marker);
+                            map.setCenter(new LatLong(latitude, longitude));
+                        }
+                        else
+                        {
+                             map.removeMarker(marker);
+                             mapOptions.center(new LatLong(30.033333, 31.233334));
+                        }
 
                     });
                 } catch (Exception ex) {
@@ -102,5 +116,10 @@ public class GMap implements MapComponentInitializedListener {
         pane.setCenter(mapView);
 
         parent.getChildren().add(pane);
+    }
+    public void removeUI(Pane parent) {
+        
+
+        parent.getChildren().remove(mapView);
     }
 }
