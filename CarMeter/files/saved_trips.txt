@@ -1,3 +1,1 @@
-asmaa;44;55;99;99;66;
-abdallah;44;55;99;99;66;
 Entter Your trip name HERE!;44;55;99;99;66;
