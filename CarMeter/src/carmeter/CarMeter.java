@@ -7,6 +7,7 @@ package carmeter;
 
 import Map.GMap;
 import static Map.GMap.t;
+import Map.VeiwTripMap;
 import audioPck.AudioAlarm;
 import com.sun.javafx.application.LauncherImpl;
 import eu.hansolo.medusa.Gauge;
@@ -66,8 +67,8 @@ public class CarMeter extends Application {
     double dlong_start, dlat_start, dlong_end, dlat_end;
     int counter;
     String[][] trips;
-    double appHeight = 800;
-    double appWidth = 1200;
+    double appHeight = 700;
+    double appWidth = 1000;
     boolean started = false;
     public static boolean connected_com = false;
 
@@ -78,7 +79,7 @@ public class CarMeter extends Application {
     StackPane carMeter_pane = new StackPane();
     StackPane speedoMeter_pane = new StackPane();
     Pane savedTrips_pane = new Pane();
-    Pane viewTrip_pane = new Pane();
+    StackPane viewTrip_pane = new StackPane();
     VBox vbox = new VBox();
     Pane endTrip_pane = new Pane();
     Button start_button = new Button("start trip");
@@ -155,7 +156,6 @@ public class CarMeter extends Application {
 
         endTrip_pane.getChildren().addAll(back_button, trip_name, save_button, cancel_button);
 
-        viewTrip_pane.getChildren().add(viewTripBack_button);
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(8);
 
@@ -283,10 +283,9 @@ public class CarMeter extends Application {
 
                     } else {
                         started = true;
-                        
+
                         start_button.setText("end trip");
-                        
-                        
+
                         long_start = Double.toString(longitude);
                         lat_start = Double.toString(latitude);
                         start_button.setDisable(true);
@@ -328,6 +327,7 @@ public class CarMeter extends Application {
                 speedoMeter_pane.setOpacity(1);
             });
             viewTripBack_button.setOnAction((ActionEvent event) -> {
+                viewTrip_pane.getChildren().clear();
                 carMeter_pane.getChildren().clear();
                 mp.createUI(carMeter_pane);
                 carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, savedTrips_pane);
@@ -344,15 +344,22 @@ public class CarMeter extends Application {
                     text_cleared = true;
                 }
             });
+
             options[0].setOnAction((ActionEvent event) -> {
+                System.out.println("I am in option 1");
+                dlong_start = Double.parseDouble(trips[0][1]);
+                dlat_start = Double.parseDouble(trips[0][2]);
+                dlong_end = Double.parseDouble(trips[0][3]);
+                dlat_end = Double.parseDouble(trips[0][4]);
+
+                System.out.println(dlong_start + " " + dlat_start + " " + dlong_end + " " + dlat_end); // for trial
+
+                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 
-                dlong_start=Double.parseDouble(trips[0][1]);
-                dlat_start=Double.parseDouble(trips[0][2]);
-                dlong_end=Double.parseDouble(trips[0][3]);
-                dlat_end=Double.parseDouble(trips[0][4]);
-                
-                System.out.println(dlong_start+" "+dlat_start+" "+dlong_end+" "+dlat_end); // for trial
-                
+                m.createUI(viewTrip_pane);
+                /*add this line in options after adding map*/
+                viewTrip_pane.getChildren().add(viewTripBack_button);
+                //viewTrip_pane.getChildren().add();
                 carMeter_pane.getChildren().add(viewTrip_pane);
                 vbox.setDisable(true);
                 back_button1.setDisable(true);
@@ -360,12 +367,15 @@ public class CarMeter extends Application {
 
             });
             options[1].setOnAction((ActionEvent event) -> {
-                
-                dlong_start=Double.parseDouble(trips[1][1]);
-                dlat_start=Double.parseDouble(trips[1][2]);
-                dlong_end=Double.parseDouble(trips[1][3]);
-                dlat_end=Double.parseDouble(trips[1][4]);
-                
+                System.out.println("I am in option 2");
+                dlong_start = Double.parseDouble(trips[1][1]);
+                dlat_start = Double.parseDouble(trips[1][2]);
+                dlong_end = Double.parseDouble(trips[1][3]);
+                dlat_end = Double.parseDouble(trips[1][4]);
+                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+                m.createUI(viewTrip_pane);
+                /*add this line in options after adding map*/
+                viewTrip_pane.getChildren().add(viewTripBack_button);
                 carMeter_pane.getChildren().add(viewTrip_pane);
                 vbox.setDisable(true);
                 back_button1.setDisable(true);
@@ -374,24 +384,33 @@ public class CarMeter extends Application {
             });
             options[2].setOnAction((ActionEvent event) -> {
                 
-                dlong_start=Double.parseDouble(trips[2][1]);
-                dlat_start=Double.parseDouble(trips[2][2]);
-                dlong_end=Double.parseDouble(trips[2][3]);
-                dlat_end=Double.parseDouble(trips[2][4]);
+                System.out.println("I am in option 3");
+                dlong_start = Double.parseDouble(trips[2][1]);
+                dlat_start = Double.parseDouble(trips[2][2]);
+                dlong_end = Double.parseDouble(trips[2][3]);
+                dlat_end = Double.parseDouble(trips[2][4]);
                 
-                carMeter_pane.getChildren().add(viewTrip_pane);
+                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+                m.createUI(viewTrip_pane);
+
+                /*add this line in options after adding map*/
+                viewTrip_pane.getChildren().addAll(viewTripBack_button);
+                carMeter_pane.getChildren().addAll(viewTrip_pane);
                 vbox.setDisable(true);
                 back_button1.setDisable(true);
                 clear.setDisable(true);
 
             });
             options[3].setOnAction((ActionEvent event) -> {
-                
-                dlong_start=Double.parseDouble(trips[3][1]);
-                dlat_start=Double.parseDouble(trips[3][2]);
-                dlong_end=Double.parseDouble(trips[3][3]);
-                dlat_end=Double.parseDouble(trips[3][4]);
-                
+                System.out.println("I am in option 4");
+                dlong_start = Double.parseDouble(trips[3][1]);
+                dlat_start = Double.parseDouble(trips[3][2]);
+                dlong_end = Double.parseDouble(trips[3][3]);
+                dlat_end = Double.parseDouble(trips[3][4]);
+                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+                m.createUI(viewTrip_pane);
+                /*add this line in options after adding map*/
+                viewTrip_pane.getChildren().add(viewTripBack_button);
                 carMeter_pane.getChildren().add(viewTrip_pane);
                 vbox.setDisable(true);
                 back_button1.setDisable(true);
@@ -399,12 +418,15 @@ public class CarMeter extends Application {
 
             });
             options[4].setOnAction((ActionEvent event) -> {
-                
-                dlong_start=Double.parseDouble(trips[4][1]);
-                dlat_start=Double.parseDouble(trips[4][2]);
-                dlong_end=Double.parseDouble(trips[4][3]);
-                dlat_end=Double.parseDouble(trips[4][4]);
-                
+                System.out.println("I am in option 5");
+                dlong_start = Double.parseDouble(trips[4][1]);
+                dlat_start = Double.parseDouble(trips[4][2]);
+                dlong_end = Double.parseDouble(trips[4][3]);
+                dlat_end = Double.parseDouble(trips[4][4]);
+                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+                m.createUI(viewTrip_pane);
+                /*add this line in options after adding map*/
+                viewTrip_pane.getChildren().add(viewTripBack_button);
                 carMeter_pane.getChildren().add(viewTrip_pane);
                 vbox.setDisable(true);
                 back_button1.setDisable(true);
@@ -413,7 +435,7 @@ public class CarMeter extends Application {
             });
             save_button.setOnAction((ActionEvent event) -> {
 
-                time ="0.0";
+                time = "0.0";
 
                 if (counter <= 5) {
                     writeTrips = trip_name.getText() + ";" + lat_start + ";" + long_start + ";" + lat_end + ";" + lat_end + ";" + time + ";\n";
@@ -452,14 +474,14 @@ public class CarMeter extends Application {
                 trip_name.setText("Entter Your trip name HERE!");
                 text_cleared = false;
             });
-            for (Hyperlink n : options) {
-                n.setOnAction((event) -> {
-                    carMeter_pane.getChildren().add(viewTrip_pane);
-                    vbox.setDisable(true);
-                    back_button1.setDisable(true);
-                    clear.setDisable(true);
-                });
-            }
+//            for (Hyperlink n : options) {
+//                n.setOnAction((event) -> {
+//                    carMeter_pane.getChildren().add(viewTrip_pane);
+//                    vbox.setDisable(true);
+//                    back_button1.setDisable(true);
+//                    clear.setDisable(true);
+//                });
+//            }
 
             appHeight = carMeter_pane.getHeight();
             appWidth = carMeter_pane.getWidth();
