@@ -15,9 +15,12 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +30,9 @@ import javafx.event.ActionEvent;
 
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TextArea;
 
@@ -50,9 +55,10 @@ import net.sf.marineapi.nmea.sentence.SentenceValidator;
  * @author asmaa
  */
 public class CarMeter extends Application {
-     private static final int COUNT_LIMIT = 10;
+
+    private static final int COUNT_LIMIT = 10;
     AudioAlarm audio;
-    SerialCommunication serialComm ;
+    SerialCommunication serialComm;
     String writeTrips;
     String lds, lts, lde, lte, time;
     int counter;
@@ -82,7 +88,7 @@ public class CarMeter extends Application {
     Text title = new Text("Tracks");
     //double latitude=30.0813565;double longitude=31.2383316; double speed =0;
     Thread thread_readLine;
-    int flag_position=0;
+    int flag_position = 0;
 
     Hyperlink options[] = new Hyperlink[]{
         new Hyperlink(""),
@@ -90,25 +96,24 @@ public class CarMeter extends Application {
         new Hyperlink(""),
         new Hyperlink(""),
         new Hyperlink("")};
-    
-    
+
     /*Initial paramter that will be used in Google Map*/
     public static double latitude;
-    public static double longitude ;
+    public static double longitude;
     public static double speed;
-    GMap mp = new GMap();
     
+
     @Override
-    public void init() throws Exception{
-         // Perform some heavy lifting (i.e. database start, check for application updates, etc. )
+    public void init() throws Exception {
+        // Perform some heavy lifting (i.e. database start, check for application updates, etc. )
         for (int i = 1; i <= COUNT_LIMIT; i++) {
-            double progress =(double) i/10;
-            System.out.println("progress: " +  progress);            
+            double progress = (double) i / 10;
+            System.out.println("progress: " + progress);
             LauncherImpl.notifyPreloader(this, new Preloader.ProgressNotification(progress));
             Thread.sleep(500);
         }
-        audio= new AudioAlarm();
-        mp.createUI(carMeter_pane);
+        audio = new AudioAlarm();
+       
         String writeTrips = new String();
         gauge = GaugeBuilder.create().minValue(0).maxValue(220)
                 .skinType(Gauge.SkinType.DIGITAL)
@@ -164,30 +169,31 @@ public class CarMeter extends Application {
             VBox.setMargin(options[i], new Insets(0, 0, 0, 8));
             vbox.getChildren().add(options[i]);
         }
-        
-          try {
-            
-            serialComm=new SerialCommunication();
-            
+
+        try {
+
+            serialComm = new SerialCommunication();
+
             thread_readLine = new Thread(new ReadLine());
-        
+
             //thread_readLine.start();
-         
         } catch (Exception ex) {
             System.out.println("Init Exception");
             ex.printStackTrace();
         }
-    
+
     }
 
     @Override
     public void start(Stage primaryStage) {
         
-//        System.out.println(viewTripBack_button.getStyle());
-//        System.out.println("1");
-
         ///////////////// DELETE BUTTON ACTION  \\\\\\\\\\\\\\\\\\
-        clear.setOnAction(ActionEvent -> {
+        try{
+            InetAddress ip = InetAddress.getByName("www.javatpoint.com");
+           
+             GMap mp = new GMap();
+        mp.createUI(carMeter_pane);
+            clear.setOnAction(ActionEvent -> {
 
             try {
                 FileWriter myWriter = new FileWriter("files/saved_trips.txt");
@@ -253,12 +259,12 @@ public class CarMeter extends Application {
                 carMeter_pane.getChildren().add(endTrip_pane);
                 start_button.setText("start trip");
                 started = false;
-                 serialComm.disconnect();
-                if (thread_readLine.isAlive()==true){
+                serialComm.disconnect();
+                if (thread_readLine.isAlive() == true) {
                     thread_readLine.suspend();
                 }
                 start_button.setDisable(true);
-            
+
             } else {
                 started = true;
 
@@ -269,23 +275,23 @@ public class CarMeter extends Application {
                     System.out.println("Error here");
 //                    Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                    if (thread_readLine.isAlive()==false){
-                            thread_readLine.start();}
-                    else {
+                if (thread_readLine.isAlive() == false) {
+                    thread_readLine.start();
+                } else {
                     thread_readLine.resume();
-                        }
-                
+                }
+
                 start_button.setDisable(true);
                 start_button.setDisable(false);
-                
-                flag_position =0;
+
+                flag_position = 0;
             }
         });
         back_button.setOnAction((ActionEvent event) -> {
             carMeter_pane.getChildren().clear();
             mp.createUI(carMeter_pane);
             carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
-            
+
             viewTrips_button.setDisable(false);
             start_button.setDisable(false);
             speedoMeter_pane.setOpacity(1);
@@ -328,19 +334,19 @@ public class CarMeter extends Application {
                 writeTrips = trip_name.getText() + ";" + lts + ";" + lds + ";" + lte + ";" + lte + ";" + time + ";\n";
             }
             counter++;
-            
-             try {
-                    if (counter <= 5) {
-                        Files.write(Paths.get("files/saved_trips.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
-                    } else {
-                        System.out.println("no room for another save");
-                    }
-                } catch (IOException ex) {
-                    //exception handling left as an exercise for the reader
-                    Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
 
+            try {
+                if (counter <= 5) {
+                    Files.write(Paths.get("files/saved_trips.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
+                } else {
+                    System.out.println("no room for another save");
                 }
-            
+            } catch (IOException ex) {
+                //exception handling left as an exercise for the reader
+                Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
+
+            }
+
             carMeter_pane.getChildren().clear();
             carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
             viewTrips_button.setDisable(false);
@@ -349,7 +355,7 @@ public class CarMeter extends Application {
             trip_name.setText("Entter Your trip name HERE!");
             text_cleared = false;
         });
-        
+
         cancel_button.setOnAction((event) -> {
             carMeter_pane.getChildren().clear();
             carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
@@ -359,7 +365,7 @@ public class CarMeter extends Application {
             trip_name.setText("Entter Your trip name HERE!");
             text_cleared = false;
         });
-        for(Hyperlink n : options){
+        for (Hyperlink n : options) {
             n.setOnAction((event) -> {
                 carMeter_pane.getChildren().add(viewTrip_pane);
                 vbox.setDisable(true);
@@ -372,7 +378,7 @@ public class CarMeter extends Application {
         appWidth = carMeter_pane.getWidth();
 
         viewTrips_button.setTranslateX(appWidth / 2 - 150);
-        viewTrips_button.setTranslateY(appHeight / 2 -30);
+        viewTrips_button.setTranslateY(appHeight / 2 - 30);
         clear.setTranslateX(650);
         clear.setTranslateY(500);
 
@@ -396,8 +402,24 @@ public class CarMeter extends Application {
         primaryStage.setResizable(false);
         primaryStage.setTitle("CarMeter APP");
         primaryStage.setScene(carMeter_scene);
-         primaryStage.setOnCloseRequest(event -> System.exit(0));
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.show();
+        }
+        catch(UnknownHostException ex)
+        {
+            //Adding audio file here 
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Internet Connection!!");
+            alert.setHeaderText("No Internet Coneection");
+            alert.setContentText("Please ! Reconnect to internet and try Agian");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (!result.isPresent()) {
+                 primaryStage.setOnCloseRequest(event -> System.exit(0));
+            } else if (result.get() == ButtonType.OK) {
+                primaryStage.setOnCloseRequest(event -> System.exit(0));
+            }
+        }
     }
 
     /**
@@ -406,53 +428,52 @@ public class CarMeter extends Application {
     public static void main(String[] args) {
         LauncherImpl.launchApplication(CarMeter.class, MyPreloader.class, args);
     }
-    
-    class ReadLine implements Runnable 
-    {
+
+    class ReadLine implements Runnable {
+
         @Override
-        public void run ()
-        {  
-            while(true)
-            {
-            try {
-                Thread.sleep(10);
-                while(serialComm.buf != null &&((serialComm.temp = serialComm.buf.readLine()) != null)){
-                    if (SentenceValidator.isValid(serialComm.temp)) {
-                    //System.out.println(serialComm.temp );
-                    
-                    SentenceFactory sf = SentenceFactory.getInstance();
-                    //if (sf.hasParser(serialComm.temp)){
-                    Sentence s= sf.createParser(serialComm.temp);
-                
-                    if("RMC".equals(s.getSentenceId())) { 
-				RMCSentence rmc= (RMCSentence) s;
-                                speed =rmc.getSpeed();
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(10);
+                    while (serialComm.buf != null && ((serialComm.temp = serialComm.buf.readLine()) != null)) {
+                        if (SentenceValidator.isValid(serialComm.temp)) {
+                            //System.out.println(serialComm.temp );
+
+                            SentenceFactory sf = SentenceFactory.getInstance();
+                            //if (sf.hasParser(serialComm.temp)){
+                            Sentence s = sf.createParser(serialComm.temp);
+
+                            if ("RMC".equals(s.getSentenceId())) {
+                                RMCSentence rmc = (RMCSentence) s;
+                                speed = rmc.getSpeed();
                                 gauge.setValue(speed);
-                                 if (speed >10){audio.play_sound();}
-                                else {audio.stop_sound();}
+                                if (speed > 10) {
+                                    audio.play_sound();
+                                } else {
+                                    audio.stop_sound();
+                                }
                                 System.out.println("RMC speed: " + rmc.getSpeed());
-                                
-                                
+
+                            } else if ("GGA".equals(s.getSentenceId())) {
+                                GGASentence gga = (GGASentence) s;
+                                latitude = gga.getPosition().getLatitude();
+                                longitude = gga.getPosition().getLongitude();
+
+                                //System.out.println("latitude: " + latitude);
+                                //System.out.println(",longitude: " + longitude);
+                                System.out.println("GGA position: " + gga.getPosition());
+                                flag_position = 1;
+                            }
+                            //}
+                        }
                     }
-                    else if ("GGA".equals(s.getSentenceId())) {
-                            GGASentence gga = (GGASentence) s;
-                            latitude=gga.getPosition().getLatitude();
-                            longitude = gga.getPosition().getLongitude();
-                         
-                            //System.out.println("latitude: " + latitude);
-                            //System.out.println(",longitude: " + longitude);
-                            System.out.println("GGA position: " + gga.getPosition());
-                            flag_position=1;
-                    }
-                    //}
-                          }
-                }
-            } catch (Exception ex) {
+                } catch (Exception ex) {
                     //ex.printStackTrace();
                     System.out.println("please connect your mobile or make sure or if you are already connected make sure that you have gps now connected on your device");
                 }
-            }      
-        
+            }
+
         }
     }
 
