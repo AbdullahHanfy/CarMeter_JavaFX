@@ -31,6 +31,11 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -78,7 +83,7 @@ public class CarMeter extends Application {
     Button clear = new Button("Delete Trips");
     Button save_button = new Button("save trip");
     Button cancel_button = new Button("cancel trip");
-    TextArea trip_name = new TextArea("Entter Your trip name HERE!");
+    TextArea trip_name_text = new TextArea("Entter Your trip name HERE!");
     Button viewTrips_button = new Button("View saved trips");
     Text title;
     //double latitude=30.0813565;double longitude=31.2383316; double speed =0;
@@ -103,7 +108,7 @@ public class CarMeter extends Application {
 
     @Override
     public void init() {
-        img = new Image("files\\back.jpg");
+        //img = new Image("files/back.jpg");
         //view = new ImageView(img);
         audio = new AudioAlarm();
         mp.createUI(carMeter_pane);
@@ -123,39 +128,58 @@ public class CarMeter extends Application {
 
         carMeter_pane.setStyle("-fx-background-color: rgba(230, 230, 230, 1);");
         savedTrips_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1);");
+        savedTrips_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         endTrip_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1); -fx-border-color: rgba(213, 216, 219, 1);");
+        endTrip_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         viewTrip_pane.setStyle("-fx-background-color: rgba(170, 218, 255, 1);");
         speedoMeter_pane.setStyle("-fx-background-color: rgba(0, 0, 0, 1); -fx-background-radius: 150;");
+        viewTrip_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         start_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        //start_button.setBorder(new Border(new BorderStroke(Color.GRAY, 
+        //    BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
         back_button.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        back_button.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
         back_button1.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        back_button1.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
         clear.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        clear.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
 
         save_button.setDisable(true);
+        save_button.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
         save_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-        trip_name.setStyle("-fx-background-color: rgba(232, 232, 232, 1); -fx-background-radius: 7; -fx-font:  bold 15px 'serif'; -fx-font-color:  rgba(0, 0, 0, 0.3);");
+        trip_name_text.setStyle("-fx-background-color: rgba(232, 232, 232, 1); -fx-background-radius: 7; -fx-font:  bold 15px 'serif'; -fx-font-color:  rgba(0, 0, 0, 0.3);");
         cancel_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        cancel_button.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
 
-        trip_name.setMaxSize(250, 30);
+        trip_name_text.setMaxSize(250, 30);
         viewTrips_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
 
         carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
         carMeter_scene = new Scene(carMeter_pane, appWidth, appHeight);
 
-        endTrip_pane.getChildren().addAll(back_button, trip_name, save_button, cancel_button);
+        endTrip_pane.getChildren().addAll(back_button, trip_name_text, save_button, cancel_button);
 
         viewTrip_pane.getChildren().add(viewTripBack_button);
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(8);
 
         savedTrips_pane.getChildren().addAll(back_button1, vbox, clear);
-
+        
+        
         vbox.setTranslateY(50);
         vbox.setTranslateX(50);
         vbox.setPadding(new Insets(25));
-        vbox.setSpacing(8);
+        vbox.setSpacing(10);
         title = new Text("Your saved trips!");
         title.setFont(Font.font("Times New Roman", FontWeight.BOLD, 28));
         vbox.getChildren().add(title);
@@ -186,8 +210,7 @@ public class CarMeter extends Application {
 //        System.out.println(viewTripBack_button.getStyle());
 //        System.out.println("1");
         ///////////////// DELETE BUTTON ACTION  \\\\\\\\\\\\\\\\\\
-        
-       // back_button.setGraphic(view);
+        // back_button.setGraphic(view);
         //back_button1.setGraphic(view);
         clear.setOnAction(ActionEvent -> {
 
@@ -312,22 +335,22 @@ public class CarMeter extends Application {
 
         });
 
-        trip_name.setOnMouseClicked((event) -> {
+        trip_name_text.setOnMouseClicked((event) -> {
             if (!text_cleared) {
-                trip_name.setText("");
+                trip_name_text.setText("");
                 text_cleared = true;
             }
         });
-        trip_name.onKeyTypedProperty().set((KeyEvent event) -> {
-            if (trip_name.getText() == "") {
+        trip_name_text.onKeyTypedProperty().set((KeyEvent event) -> {
+            if (trip_name_text.getText() == "") {
                 save_button.setDisable(true);
             } else {
                 save_button.setDisable(false);
             }
         });
         save_button.setOnAction((ActionEvent event) -> {
-            if ("".equals(trip_name.getText())) {
-                trip_name.setText("Enter a trip name to save your trip!");
+            if ("".equals(trip_name_text.getText())) {
+                trip_name_text.setText("Enter a trip name to save your trip!");
             } else {
                 lds = "55";
                 lte = "99";
@@ -335,7 +358,7 @@ public class CarMeter extends Application {
                 time = "66";
 
                 if (counter <= 5) {
-                    writeTrips = trip_name.getText() + ";" + lts + ";" + lds + ";" + lte + ";" + lte + ";" + time + ";\n";
+                    writeTrips = trip_name_text.getText() + ";" + lts + ";" + lds + ";" + lte + ";" + lte + ";" + time + ";\n";
                 }
                 counter++;
 
@@ -356,9 +379,10 @@ public class CarMeter extends Application {
                 viewTrips_button.setDisable(false);
                 start_button.setDisable(false);
                 speedoMeter_pane.setOpacity(1);
-                trip_name.setText("Entter Your trip name HERE!");
+                trip_name_text.setText("Entter Your trip name HERE!");
             }
             text_cleared = false;
+            save_button.setDisable(true);
         });
 
         cancel_button.setOnAction((event) -> {
@@ -367,8 +391,10 @@ public class CarMeter extends Application {
             viewTrips_button.setDisable(false);
             start_button.setDisable(false);
             speedoMeter_pane.setOpacity(1);
-            trip_name.setText("Entter Your trip name HERE!");
+            trip_name_text.setText("Entter Your trip name HERE!");
             text_cleared = false;
+            save_button.setDisable(true);
+
         });
         for (Hyperlink n : options) {
             n.setOnAction((event) -> {
@@ -387,8 +413,8 @@ public class CarMeter extends Application {
         clear.setTranslateX(650);
         clear.setTranslateY(500);
 
-        trip_name.setTranslateX(150);
-        trip_name.setTranslateY(appHeight / 2 - 200);
+        trip_name_text.setTranslateX(150);
+        trip_name_text.setTranslateY(appHeight / 2 - 200);
 
         save_button.setTranslateX(80);
         save_button.setTranslateY(appHeight / 2 - 100);
