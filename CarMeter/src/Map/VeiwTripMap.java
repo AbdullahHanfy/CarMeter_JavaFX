@@ -71,7 +71,7 @@ public class VeiwTripMap implements MapComponentInitializedListener {
                 .scaleControl(false)
                 .streetViewControl(false)
                 .zoomControl(false)
-                .zoom(15);
+                .zoom(13);
 
         map = mapView.createMap(mapOptions);
         System.out.println(this.lat_end);
@@ -98,7 +98,7 @@ public class VeiwTripMap implements MapComponentInitializedListener {
                         Marker markerEnd = new Marker(markerOptionsEnd);
                         map.addMarker(markerEnd);
                     
-
+                         map.setCenter(new LatLong((lat_start+lat_end)/2, (lng_start+lng_end)/2));
                     });
                 } catch (Exception ex) {
                     ex.printStackTrace();

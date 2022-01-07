@@ -595,9 +595,9 @@ public class CarMeter extends Application {
 
                             if ("RMC".equals(s.getSentenceId())) {
                                 RMCSentence rmc = (RMCSentence) s;
-                                speed = rmc.getSpeed();
+                                speed = (rmc.getSpeed())*2;
                                 gauge.setValue(speed);
-                                if (speed > 10) {
+                                if (speed > 30) {
                                     audio.play_sound();
                                 } else {
                                     audio.stop_sound();

@@ -61,7 +61,7 @@ public class GMap implements MapComponentInitializedListener {
                 .scaleControl(false)
                 .streetViewControl(false)
                 .zoomControl(false)
-                .zoom(10);
+                .zoom(13);
 
         map = mapView.createMap(mapOptions);
 
