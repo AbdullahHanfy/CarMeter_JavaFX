@@ -74,8 +74,8 @@ public class CarMeter extends Application {
     double dlong_start, dlat_start, dlong_end, dlat_end;
     int counter;
     String[][] trips;
-    double appHeight = 700;
-    double appWidth = 1000;
+    double appHeight = 500;
+    double appWidth = 800;
     boolean started = false;
     public static boolean connected_com = false;
 
@@ -529,17 +529,17 @@ public class CarMeter extends Application {
             viewTripBack_button.setTranslateY(-appHeight / 4+20);
             viewTrips_button.setTranslateX(appWidth / 2 - 150);
             viewTrips_button.setTranslateY(appHeight / 2 - 30);
-            clear.setTranslateX(650);
-            clear.setTranslateY(500);
+            clear.setTranslateX(3*appWidth/4-210);
+            clear.setTranslateY(3*appHeight/4 -70);
 
-            trip_name.setTranslateX(150);
-            trip_name.setTranslateY(appHeight / 2 - 200);
+            trip_name.setTranslateX(appWidth/8);
+            trip_name.setTranslateY(appHeight / 4);
 
-            save_button.setTranslateX(80);
-            save_button.setTranslateY(appHeight / 2 - 100);
+            save_button.setTranslateX(appWidth/8-70);
+            save_button.setTranslateY(appHeight / 2 - 70);
 
-            cancel_button.setTranslateX(320);
-            cancel_button.setTranslateY(appHeight / 2 - 100);
+            cancel_button.setTranslateX(appWidth/4);
+            cancel_button.setTranslateY(appHeight / 2 - 70);
 
             start_button.setTranslateX(appWidth / 2 - 150);
             start_button.setTranslateY(appHeight / 2 - 100);
