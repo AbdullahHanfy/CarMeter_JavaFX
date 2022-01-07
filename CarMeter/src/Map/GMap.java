@@ -6,7 +6,6 @@
 package Map;
 
 import static Map.ApiKey.ApiKey;
-import carmeter.CarMeter;
 import static carmeter.CarMeter.flag_position;
 import static carmeter.CarMeter.latitude;
 import static carmeter.CarMeter.longitude;
