@@ -375,10 +375,10 @@ public class CarMeter extends Application {
 
             options[0].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 1");
-                dlong_start = Double.parseDouble(trips[0][1]);
-                dlat_start = Double.parseDouble(trips[0][2]);
-                dlong_end = Double.parseDouble(trips[0][3]);
-                dlat_end = Double.parseDouble(trips[0][4]);
+                dlat_start = Double.parseDouble(trips[0][1]);
+                dlong_start = Double.parseDouble(trips[0][2]);
+                dlat_end = Double.parseDouble(trips[0][3]);
+                dlong_end = Double.parseDouble(trips[0][4]);
 
                 System.out.println(dlong_start + " " + dlat_start + " " + dlong_end + " " + dlat_end); // for trial
 
@@ -396,10 +396,10 @@ public class CarMeter extends Application {
             });
             options[1].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 2");
-                dlong_start = Double.parseDouble(trips[1][1]);
-                dlat_start = Double.parseDouble(trips[1][2]);
-                dlong_end = Double.parseDouble(trips[1][3]);
-                dlat_end = Double.parseDouble(trips[1][4]);
+                dlat_start = Double.parseDouble(trips[1][1]);
+                dlong_start = Double.parseDouble(trips[1][2]);
+                dlat_end = Double.parseDouble(trips[1][3]);
+                dlong_end = Double.parseDouble(trips[1][4]);
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
                 /*add this line in options after adding map*/
@@ -413,10 +413,10 @@ public class CarMeter extends Application {
             options[2].setOnAction((ActionEvent event) -> {
 
                 System.out.println("I am in option 3");
-                dlong_start = Double.parseDouble(trips[2][1]);
-                dlat_start = Double.parseDouble(trips[2][2]);
-                dlong_end = Double.parseDouble(trips[2][3]);
-                dlat_end = Double.parseDouble(trips[2][4]);
+                dlat_start = Double.parseDouble(trips[2][1]);
+                dlong_start = Double.parseDouble(trips[2][2]);
+                dlat_end = Double.parseDouble(trips[2][3]);
+                dlong_end = Double.parseDouble(trips[2][4]);
 
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
@@ -431,10 +431,10 @@ public class CarMeter extends Application {
             });
             options[3].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 4");
-                dlong_start = Double.parseDouble(trips[3][1]);
-                dlat_start = Double.parseDouble(trips[3][2]);
-                dlong_end = Double.parseDouble(trips[3][3]);
-                dlat_end = Double.parseDouble(trips[3][4]);
+                dlat_start= Double.parseDouble(trips[3][1]);
+                dlong_start= Double.parseDouble(trips[3][2]);
+                dlat_end= Double.parseDouble(trips[3][3]);
+               dlong_end = Double.parseDouble(trips[3][4]);
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
                 /*add this line in options after adding map*/
@@ -447,10 +447,10 @@ public class CarMeter extends Application {
             });
             options[4].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 5");
-                dlong_start = Double.parseDouble(trips[4][1]);
-                dlat_start = Double.parseDouble(trips[4][2]);
-                dlong_end = Double.parseDouble(trips[4][3]);
-                dlat_end = Double.parseDouble(trips[4][4]);
+                dlat_start = Double.parseDouble(trips[4][1]);
+                dlong_start = Double.parseDouble(trips[4][2]);
+                dlat_end = Double.parseDouble(trips[4][3]);
+                dlong_end = Double.parseDouble(trips[4][4]);
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
                 /*add this line in options after adding map*/
@@ -474,7 +474,7 @@ public class CarMeter extends Application {
                     } else {
 
                         if (counter <= 5) {
-                            writeTrips = trip_name.getText() + ";" + lat_start + ";" + long_start + ";" + lat_end + ";" + lat_end + ";" + time + ";\n";
+                            writeTrips = trip_name.getText() + ";" + lat_start + ";" + long_start + ";" + lat_end + ";" + long_end + ";" + time + ";\n";
                         }
                         counter++;
 
