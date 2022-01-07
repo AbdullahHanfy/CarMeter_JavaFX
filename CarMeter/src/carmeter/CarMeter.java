@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -37,6 +38,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -67,8 +74,8 @@ public class CarMeter extends Application {
     double dlong_start, dlat_start, dlong_end, dlat_end;
     int counter;
     String[][] trips;
-    double appHeight = 700;
-    double appWidth = 1000;
+    double appHeight = 500;
+    double appWidth = 800;
     boolean started = false;
     public static boolean connected_com = false;
 
@@ -91,7 +98,7 @@ public class CarMeter extends Application {
     Button cancel_button = new Button("cancel trip");
     TextArea trip_name = new TextArea("Entter Your trip name HERE!");
     Button viewTrips_button = new Button("View saved trips");
-    Text title = new Text("Tracks");
+    Text title;
     //double latitude=30.0813565;double longitude=31.2383316; double speed =0;
     Thread thread_readLine;
     public static int flag_position = 0;
@@ -135,20 +142,36 @@ public class CarMeter extends Application {
 
         carMeter_pane.setStyle("-fx-background-color: rgba(230, 230, 230, 1);");
         savedTrips_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1);");
+        savedTrips_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         endTrip_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1); -fx-border-color: rgba(213, 216, 219, 1);");
-
+         endTrip_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        
         viewTrip_pane.setStyle("-fx-background-color: rgba(170, 218, 255, 1);");
+        viewTrip_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         speedoMeter_pane.setStyle("-fx-background-color: rgba(0, 0, 0, 1); -fx-background-radius: 150;");
 
         start_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
         back_button.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        back_button.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
         back_button1.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        back_button1.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
         clear.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        clear.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
 
         save_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        save_button.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
         trip_name.setStyle("-fx-background-color: rgba(232, 232, 232, 1); -fx-background-radius: 7; -fx-font:  bold 15px 'serif'; -fx-font-color:  rgba(0, 0, 0, 0.3);");
         cancel_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-
+         cancel_button.setBorder(new Border(new BorderStroke(Color.GRAY,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
+         
         trip_name.setMaxSize(250, 30);
         viewTrips_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
 
@@ -156,16 +179,14 @@ public class CarMeter extends Application {
 
         endTrip_pane.getChildren().addAll(back_button, trip_name, save_button, cancel_button);
 
-        vbox.setPadding(new Insets(10));
-        vbox.setSpacing(8);
-
         savedTrips_pane.getChildren().addAll(back_button1, vbox, clear);
 
         vbox.setTranslateY(50);
-        vbox.setPadding(new Insets(10));
-        vbox.setSpacing(8);
-        Text title = new Text("Tracks");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        vbox.setTranslateX(50);
+        vbox.setPadding(new Insets(25));
+        vbox.setSpacing(10);
+        title = new Text("Your saved trips!");
+        title.setFont(Font.font("Times New Roman", FontWeight.BOLD, 28));
         vbox.getChildren().add(title);
         clear.setPrefWidth(200);
         for (int i = 0; i < 5; i++) {
@@ -344,18 +365,25 @@ public class CarMeter extends Application {
                     text_cleared = true;
                 }
             });
+            trip_name.onKeyTypedProperty().set((KeyEvent event) -> {
+                if (trip_name.getText() == "") {
+                    save_button.setDisable(true);
+                } else {
+                    save_button.setDisable(false);
+                }
+            });
 
             options[0].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 1");
-                dlong_start = Double.parseDouble(trips[0][1]);
-                dlat_start = Double.parseDouble(trips[0][2]);
-                dlong_end = Double.parseDouble(trips[0][3]);
-                dlat_end = Double.parseDouble(trips[0][4]);
+                dlat_start = Double.parseDouble(trips[0][1]);
+                dlong_start = Double.parseDouble(trips[0][2]);
+                dlat_end = Double.parseDouble(trips[0][3]);
+                dlong_end = Double.parseDouble(trips[0][4]);
 
                 System.out.println(dlong_start + " " + dlat_start + " " + dlong_end + " " + dlat_end); // for trial
 
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-                
+
                 m.createUI(viewTrip_pane);
                 /*add this line in options after adding map*/
                 viewTrip_pane.getChildren().add(viewTripBack_button);
@@ -368,10 +396,10 @@ public class CarMeter extends Application {
             });
             options[1].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 2");
-                dlong_start = Double.parseDouble(trips[1][1]);
-                dlat_start = Double.parseDouble(trips[1][2]);
-                dlong_end = Double.parseDouble(trips[1][3]);
-                dlat_end = Double.parseDouble(trips[1][4]);
+                dlat_start = Double.parseDouble(trips[1][1]);
+                dlong_start = Double.parseDouble(trips[1][2]);
+                dlat_end = Double.parseDouble(trips[1][3]);
+                dlong_end = Double.parseDouble(trips[1][4]);
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
                 /*add this line in options after adding map*/
@@ -383,13 +411,13 @@ public class CarMeter extends Application {
 
             });
             options[2].setOnAction((ActionEvent event) -> {
-                
+
                 System.out.println("I am in option 3");
-                dlong_start = Double.parseDouble(trips[2][1]);
-                dlat_start = Double.parseDouble(trips[2][2]);
-                dlong_end = Double.parseDouble(trips[2][3]);
-                dlat_end = Double.parseDouble(trips[2][4]);
-                
+                dlat_start = Double.parseDouble(trips[2][1]);
+                dlong_start = Double.parseDouble(trips[2][2]);
+                dlat_end = Double.parseDouble(trips[2][3]);
+                dlong_end = Double.parseDouble(trips[2][4]);
+
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
 
@@ -403,10 +431,10 @@ public class CarMeter extends Application {
             });
             options[3].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 4");
-                dlong_start = Double.parseDouble(trips[3][1]);
-                dlat_start = Double.parseDouble(trips[3][2]);
-                dlong_end = Double.parseDouble(trips[3][3]);
-                dlat_end = Double.parseDouble(trips[3][4]);
+                dlat_start= Double.parseDouble(trips[3][1]);
+                dlong_start= Double.parseDouble(trips[3][2]);
+                dlat_end= Double.parseDouble(trips[3][3]);
+               dlong_end = Double.parseDouble(trips[3][4]);
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
                 /*add this line in options after adding map*/
@@ -419,10 +447,10 @@ public class CarMeter extends Application {
             });
             options[4].setOnAction((ActionEvent event) -> {
                 System.out.println("I am in option 5");
-                dlong_start = Double.parseDouble(trips[4][1]);
-                dlat_start = Double.parseDouble(trips[4][2]);
-                dlong_end = Double.parseDouble(trips[4][3]);
-                dlat_end = Double.parseDouble(trips[4][4]);
+                dlat_start = Double.parseDouble(trips[4][1]);
+                dlong_start = Double.parseDouble(trips[4][2]);
+                dlat_end = Double.parseDouble(trips[4][3]);
+                dlong_end = Double.parseDouble(trips[4][4]);
                 VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
                 m.createUI(viewTrip_pane);
                 /*add this line in options after adding map*/
@@ -436,32 +464,43 @@ public class CarMeter extends Application {
             save_button.setOnAction((ActionEvent event) -> {
 
                 time = "0.0";
+                if (counter == 5) {
+                    trip_name.setText("your memory is full, please clear it to save another trip");
+                    save_button.setDisable(true);
 
-                if (counter <= 5) {
-                    writeTrips = trip_name.getText() + ";" + lat_start + ";" + long_start + ";" + lat_end + ";" + lat_end + ";" + time + ";\n";
-                }
-                counter++;
-
-                try {
-                    if (counter <= 5) {
-                        Files.write(Paths.get("files/saved_trips.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
+                } else {
+                    if ("".equals(trip_name.getText())) {
+                        trip_name.setText("Enter a trip name to save your trip!");
                     } else {
-                        System.out.println("no room for another save");
+
+                        if (counter <= 5) {
+                            writeTrips = trip_name.getText() + ";" + lat_start + ";" + long_start + ";" + lat_end + ";" + long_end + ";" + time + ";\n";
+                        }
+                        counter++;
+
+                        try {
+                            if (counter <= 5) {
+                                Files.write(Paths.get("files/saved_trips.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
+                            } else {
+                                System.out.println("no room for another save");
+                            }
+                        } catch (IOException ex) {
+                            //exception handling left as an exercise for the reader
+                            Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
+
+                        }
+
+                        carMeter_pane.getChildren().clear();
+                        mp.createUI(carMeter_pane);
+                        carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+                        viewTrips_button.setDisable(false);
+                        start_button.setDisable(false);
+                        speedoMeter_pane.setOpacity(1);
+                        trip_name.setText("Entter Your trip name HERE!");
                     }
-                } catch (IOException ex) {
-                    //exception handling left as an exercise for the reader
-                    Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
-
+                    text_cleared = false;
+                    save_button.setDisable(true);
                 }
-
-                carMeter_pane.getChildren().clear();
-                mp.createUI(carMeter_pane);
-                carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
-                viewTrips_button.setDisable(false);
-                start_button.setDisable(false);
-                speedoMeter_pane.setOpacity(1);
-                trip_name.setText("Entter Your trip name HERE!");
-                text_cleared = false;
             });
 
             cancel_button.setOnAction((event) -> {
@@ -486,19 +525,21 @@ public class CarMeter extends Application {
             appHeight = carMeter_pane.getHeight();
             appWidth = carMeter_pane.getWidth();
 
+            viewTripBack_button.setTranslateX(-appWidth / 4+30);
+            viewTripBack_button.setTranslateY(-appHeight / 4+20);
             viewTrips_button.setTranslateX(appWidth / 2 - 150);
             viewTrips_button.setTranslateY(appHeight / 2 - 30);
-            clear.setTranslateX(650);
-            clear.setTranslateY(500);
+            clear.setTranslateX(3*appWidth/4-210);
+            clear.setTranslateY(3*appHeight/4 -70);
 
-            trip_name.setTranslateX(150);
-            trip_name.setTranslateY(appHeight / 2 - 200);
+            trip_name.setTranslateX(appWidth/8);
+            trip_name.setTranslateY(appHeight / 4);
 
-            save_button.setTranslateX(80);
-            save_button.setTranslateY(appHeight / 2 - 100);
+            save_button.setTranslateX(appWidth/8-70);
+            save_button.setTranslateY(appHeight / 2 - 70);
 
-            cancel_button.setTranslateX(320);
-            cancel_button.setTranslateY(appHeight / 2 - 100);
+            cancel_button.setTranslateX(appWidth/4);
+            cancel_button.setTranslateY(appHeight / 2 - 70);
 
             start_button.setTranslateX(appWidth / 2 - 150);
             start_button.setTranslateY(appHeight / 2 - 100);
