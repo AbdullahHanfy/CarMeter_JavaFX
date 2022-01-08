@@ -1,5 +1,5 @@
 
-package carmeter;
+package CommuniCation;
 //import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
@@ -25,7 +25,7 @@ public class SerialCommunication  {
         super();
     }
     
-     void connect () throws Exception
+    public void connect () throws Exception
     {
         Enumeration<?> e = CommPortIdentifier.getPortIdentifiers();
         while (e.hasMoreElements()) {
@@ -72,6 +72,7 @@ public class SerialCommunication  {
             this.in = in;
         }
         
+        @Override
         public void run ()
         {
             byte[] buffer = new byte[1024];
