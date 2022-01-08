@@ -6,18 +6,16 @@
  */
 package carmeter;
 
-import Map.GMap;
-import static Map.GMap.t;
-import Map.VeiwTripMap;
+import Map.*;
 import audioPck.AudioAlarm;
 import com.sun.javafx.application.LauncherImpl;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -38,13 +36,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -61,7 +55,11 @@ import net.sf.marineapi.nmea.sentence.SentenceValidator;
 
 /**
  *
- * @author asmaa
+ * @author Abdullah Hanfy
+ * @author Asmaa Ebrahim
+ * @author Mostafa AbdelRazik
+ * @author Ahmed Sherif
+ * @author Asmaa Saied
  */
 public class CarMeter extends Application {
 
@@ -90,6 +88,13 @@ public class CarMeter extends Application {
     VBox vbox = new VBox();
     Pane endTrip_pane = new Pane();
     Button start_button = new Button("start trip");
+
+    /*Adding refresh button*/
+    Image img;
+    ImageView view;
+    //Creating a Button
+    Button refresh_button = new Button();
+
     Button back_button = new Button("back");
     Button viewTripBack_button = new Button("back");
     Button back_button1 = new Button("back");
@@ -117,6 +122,18 @@ public class CarMeter extends Application {
 
     @Override
     public void init() throws Exception {
+        /*Adding refresh button*/
+        img = new Image("Images/refresh.png");
+        view = new ImageView(img);
+        //Creating a Button
+        refresh_button = new Button();
+        //Setting the location of the button
+        refresh_button.setTranslateX(200);
+        refresh_button.setTranslateY(25);
+        //Setting the size of the button
+        refresh_button.setPrefSize(80, 80);
+        //Setting a graphic to the button
+        refresh_button.setGraphic(view);
         // Perform some heavy lifting (i.e. database start, check for application updates, etc. )
         for (int i = 1; i <= COUNT_LIMIT; i++) {
             double progress = (double) i / 10;
@@ -126,7 +143,6 @@ public class CarMeter extends Application {
         }
         audio = new AudioAlarm();
 
-        String writeTrips = new String();
         gauge = GaugeBuilder.create().minValue(0).maxValue(220)
                 .skinType(Gauge.SkinType.DIGITAL)
                 .foregroundBaseColor(Color.rgb(0, 222, 249))
@@ -139,41 +155,21 @@ public class CarMeter extends Application {
         savedTrips_pane.setMaxSize(.75 * appWidth, .75 * appHeight);
         endTrip_pane.setMaxSize(.5 * appWidth, .5 * appHeight);
         viewTrip_pane.setMaxSize(.5 * appWidth, .5 * appHeight);
-
-        carMeter_pane.setStyle("-fx-background-color: rgba(230, 230, 230, 1);");
-        savedTrips_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1);");
-        savedTrips_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        endTrip_pane.setStyle("-fx-background-color: rgba(195, 236, 178, 1); -fx-border-color: rgba(213, 216, 219, 1);");
-         endTrip_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        
-        viewTrip_pane.setStyle("-fx-background-color: rgba(170, 218, 255, 1);");
-        viewTrip_pane.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        speedoMeter_pane.setStyle("-fx-background-color: rgba(0, 0, 0, 1); -fx-background-radius: 150;");
-
-        start_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-        back_button.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-        back_button.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
-        back_button1.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-        back_button1.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
-        clear.setStyle("-fx-background-color: rgba(255, 242, 175, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-        clear.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
-
-        save_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-        save_button.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
-        trip_name.setStyle("-fx-background-color: rgba(232, 232, 232, 1); -fx-background-radius: 7; -fx-font:  bold 15px 'serif'; -fx-font-color:  rgba(0, 0, 0, 0.3);");
-        cancel_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
-         cancel_button.setBorder(new Border(new BorderStroke(Color.GRAY,
-                BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT)));
-         
+        carMeter_pane.setId("carMeter_pane");
+        savedTrips_pane.setId("savedTrips_pane");
+        endTrip_pane.setId("endTrip_pane");
+        viewTrip_pane.setId("viewTrip_pane");
+        speedoMeter_pane.setId("speedoMeter_pane");
+        start_button.setId("start_button");
+        back_button.setId("back_buttons");
+        back_button1.setId("back_buttons");
+        clear.setId("clear");
+        save_button.setId("save_button");
+        trip_name.setId("trip_name");
+        cancel_button.setId("cancel_button");
         trip_name.setMaxSize(250, 30);
-        viewTrips_button.setStyle("-fx-background-color: rgba(170, 218, 255, 1); -fx-background-radius: 7; -fx-font:  bold 30px 'serif';");
+        viewTrips_button.setId("viewTrips_button");
+        viewTripBack_button.setId("viewTripBack_button");
 
         carMeter_scene = new Scene(carMeter_pane, appWidth, appHeight);
 
@@ -228,332 +224,6 @@ public class CarMeter extends Application {
             InetAddress ip = InetAddress.getByName("www.javatpoint.com");
             mp = new GMap();
             mp.createUI(carMeter_pane);
-            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
-            clear.setOnAction(ActionEvent -> {
-
-                try {
-                    FileWriter myWriter = new FileWriter("files/saved_trips.txt");
-                    myWriter.write("");
-                    myWriter.close();
-                } catch (IOException e) {
-                    System.out.println("An error occurred.");
-                    e.printStackTrace();
-                }
-                for (int i = 0; i < counter; i++) {
-                    options[i].setText("");
-                    options[i].setDisable(true);
-                }
-                counter = 0;
-            });
-
-            viewTrips_button.setOnAction((ActionEvent event) -> {
-                System.out.println("savedtrps clicked");
-
-                viewTrips_button.setDisable(true);
-                speedoMeter_pane.setOpacity(0.5);
-                start_button.setDisable(true);
-                carMeter_pane.getChildren().add(savedTrips_pane);
-                counter = 0;
-                try {
-                    File myObj = new File("files/saved_trips.txt");
-                    Scanner myReader = new Scanner(myObj);
-
-                    trips = new String[5][6];
-
-                    while (myReader.hasNextLine() && counter < 5) {
-                        String data = myReader.nextLine();
-                        trips[counter] = data.split("[;]");
-                        for (String a : trips[counter]) {
-                            System.out.println(a);
-                        }
-                        counter++;
-                    }
-
-                    myReader.close();
-                } catch (FileNotFoundException e) {
-                    System.out.println("An error occurred.");
-                    e.printStackTrace();
-                }
-
-                for (int i = 0; i < 5; i++) {
-                    options[i].setDisable(true);
-
-                }
-
-                for (int i = 0; i < counter; i++) {
-                    options[i].setText(trips[i][0]);
-                    options[i].setDisable(false);
-                }
-
-            });
-            start_button.setOnAction((ActionEvent event) -> {
-
-                if (connected_com) {
-                    if (started) {
-
-                        viewTrips_button.setDisable(true);
-                        start_button.setDisable(true);
-                        speedoMeter_pane.setOpacity(0.5);
-                        carMeter_pane.getChildren().add(endTrip_pane);
-                        start_button.setText("start trip");
-                        started = false;
-                        long_end = Double.toString(longitude);
-                        lat_end = Double.toString(latitude);
-                        start_button.setDisable(true);
-                        flag_position = 0;
-
-                    } else {
-                        started = true;
-
-                        start_button.setText("end trip");
-
-                        long_start = Double.toString(longitude);
-                        lat_start = Double.toString(latitude);
-                        start_button.setDisable(true);
-                        start_button.setDisable(false);
-
-                        flag_position = 1;
-                    }
-
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("No GPS!!");
-                    alert.setHeaderText("please connect GPS first to start your trip");
-
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (!result.isPresent()) {
-
-                    } else if (result.get() == ButtonType.OK) {
-
-                    }
-                }
-
-            });
-            back_button.setOnAction((ActionEvent event) -> {
-                carMeter_pane.getChildren().clear();
-                mp.createUI(carMeter_pane);
-                carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
-
-                viewTrips_button.setDisable(false);
-                start_button.setDisable(false);
-                speedoMeter_pane.setOpacity(1);
-                //speedoMeter_pane.setDisable(false);
-            });
-            back_button1.setOnAction((ActionEvent event) -> {
-                carMeter_pane.getChildren().clear();
-                mp.createUI(carMeter_pane);
-                carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
-                viewTrips_button.setDisable(false);
-                start_button.setDisable(false);
-                speedoMeter_pane.setOpacity(1);
-            });
-            viewTripBack_button.setOnAction((ActionEvent event) -> {
-                viewTrip_pane.getChildren().clear();
-                carMeter_pane.getChildren().clear();
-                mp.createUI(carMeter_pane);
-                carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, savedTrips_pane);
-                savedTrips_pane.setOpacity(1);
-                vbox.setDisable(false);
-                back_button1.setDisable(false);
-                clear.setDisable(false);
-
-            });
-
-            trip_name.setOnMouseClicked((event) -> {
-                if (!text_cleared) {
-                    trip_name.setText("");
-                    text_cleared = true;
-                }
-            });
-            trip_name.onKeyTypedProperty().set((KeyEvent event) -> {
-                if (trip_name.getText() == "") {
-                    save_button.setDisable(true);
-                } else {
-                    save_button.setDisable(false);
-                }
-            });
-
-            options[0].setOnAction((ActionEvent event) -> {
-                System.out.println("I am in option 1");
-                dlat_start = Double.parseDouble(trips[0][1]);
-                dlong_start = Double.parseDouble(trips[0][2]);
-                dlat_end = Double.parseDouble(trips[0][3]);
-                dlong_end = Double.parseDouble(trips[0][4]);
-
-                System.out.println(dlong_start + " " + dlat_start + " " + dlong_end + " " + dlat_end); // for trial
-
-                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-
-                m.createUI(viewTrip_pane);
-                /*add this line in options after adding map*/
-                viewTrip_pane.getChildren().add(viewTripBack_button);
-                //viewTrip_pane.getChildren().add();
-                carMeter_pane.getChildren().add(viewTrip_pane);
-                vbox.setDisable(true);
-                back_button1.setDisable(true);
-                clear.setDisable(true);
-
-            });
-            options[1].setOnAction((ActionEvent event) -> {
-                System.out.println("I am in option 2");
-                dlat_start = Double.parseDouble(trips[1][1]);
-                dlong_start = Double.parseDouble(trips[1][2]);
-                dlat_end = Double.parseDouble(trips[1][3]);
-                dlong_end = Double.parseDouble(trips[1][4]);
-                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-                m.createUI(viewTrip_pane);
-                /*add this line in options after adding map*/
-                viewTrip_pane.getChildren().add(viewTripBack_button);
-                carMeter_pane.getChildren().add(viewTrip_pane);
-                vbox.setDisable(true);
-                back_button1.setDisable(true);
-                clear.setDisable(true);
-
-            });
-            options[2].setOnAction((ActionEvent event) -> {
-
-                System.out.println("I am in option 3");
-                dlat_start = Double.parseDouble(trips[2][1]);
-                dlong_start = Double.parseDouble(trips[2][2]);
-                dlat_end = Double.parseDouble(trips[2][3]);
-                dlong_end = Double.parseDouble(trips[2][4]);
-
-                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-                m.createUI(viewTrip_pane);
-
-                /*add this line in options after adding map*/
-                viewTrip_pane.getChildren().addAll(viewTripBack_button);
-                carMeter_pane.getChildren().addAll(viewTrip_pane);
-                vbox.setDisable(true);
-                back_button1.setDisable(true);
-                clear.setDisable(true);
-
-            });
-            options[3].setOnAction((ActionEvent event) -> {
-                System.out.println("I am in option 4");
-                dlat_start= Double.parseDouble(trips[3][1]);
-                dlong_start= Double.parseDouble(trips[3][2]);
-                dlat_end= Double.parseDouble(trips[3][3]);
-               dlong_end = Double.parseDouble(trips[3][4]);
-                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-                m.createUI(viewTrip_pane);
-                /*add this line in options after adding map*/
-                viewTrip_pane.getChildren().add(viewTripBack_button);
-                carMeter_pane.getChildren().add(viewTrip_pane);
-                vbox.setDisable(true);
-                back_button1.setDisable(true);
-                clear.setDisable(true);
-
-            });
-            options[4].setOnAction((ActionEvent event) -> {
-                System.out.println("I am in option 5");
-                dlat_start = Double.parseDouble(trips[4][1]);
-                dlong_start = Double.parseDouble(trips[4][2]);
-                dlat_end = Double.parseDouble(trips[4][3]);
-                dlong_end = Double.parseDouble(trips[4][4]);
-                VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-                m.createUI(viewTrip_pane);
-                /*add this line in options after adding map*/
-                viewTrip_pane.getChildren().add(viewTripBack_button);
-                carMeter_pane.getChildren().add(viewTrip_pane);
-                vbox.setDisable(true);
-                back_button1.setDisable(true);
-                clear.setDisable(true);
-
-            });
-            save_button.setOnAction((ActionEvent event) -> {
-
-                time = "0.0";
-                if (counter == 5) {
-                    trip_name.setText("your memory is full, please clear it to save another trip");
-                    save_button.setDisable(true);
-
-                } else {
-                    if ("".equals(trip_name.getText())) {
-                        trip_name.setText("Enter a trip name to save your trip!");
-                    } else {
-
-                        if (counter <= 5) {
-                            writeTrips = trip_name.getText() + ";" + lat_start + ";" + long_start + ";" + lat_end + ";" + long_end + ";" + time + ";\n";
-                        }
-                        counter++;
-
-                        try {
-                            if (counter <= 5) {
-                                Files.write(Paths.get("files/saved_trips.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
-                            } else {
-                                System.out.println("no room for another save");
-                            }
-                        } catch (IOException ex) {
-                            //exception handling left as an exercise for the reader
-                            Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
-
-                        }
-
-                        carMeter_pane.getChildren().clear();
-                        mp.createUI(carMeter_pane);
-                        carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
-                        viewTrips_button.setDisable(false);
-                        start_button.setDisable(false);
-                        speedoMeter_pane.setOpacity(1);
-                        trip_name.setText("Entter Your trip name HERE!");
-                    }
-                    text_cleared = false;
-                    save_button.setDisable(true);
-                }
-            });
-
-            cancel_button.setOnAction((event) -> {
-                carMeter_pane.getChildren().clear();
-                mp.createUI(carMeter_pane);
-                carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
-                viewTrips_button.setDisable(false);
-                start_button.setDisable(false);
-                speedoMeter_pane.setOpacity(1);
-                trip_name.setText("Entter Your trip name HERE!");
-                text_cleared = false;
-            });
-//            for (Hyperlink n : options) {
-//                n.setOnAction((event) -> {
-//                    carMeter_pane.getChildren().add(viewTrip_pane);
-//                    vbox.setDisable(true);
-//                    back_button1.setDisable(true);
-//                    clear.setDisable(true);
-//                });
-//            }
-
-            appHeight = carMeter_pane.getHeight();
-            appWidth = carMeter_pane.getWidth();
-
-            viewTripBack_button.setTranslateX(-appWidth / 4+30);
-            viewTripBack_button.setTranslateY(-appHeight / 4+20);
-            viewTrips_button.setTranslateX(appWidth / 2 - 150);
-            viewTrips_button.setTranslateY(appHeight / 2 - 30);
-            clear.setTranslateX(3*appWidth/4-210);
-            clear.setTranslateY(3*appHeight/4 -70);
-
-            trip_name.setTranslateX(appWidth/8);
-            trip_name.setTranslateY(appHeight / 4);
-
-            save_button.setTranslateX(appWidth/8-70);
-            save_button.setTranslateY(appHeight / 2 - 70);
-
-            cancel_button.setTranslateX(appWidth/4);
-            cancel_button.setTranslateY(appHeight / 2 - 70);
-
-            start_button.setTranslateX(appWidth / 2 - 150);
-            start_button.setTranslateY(appHeight / 2 - 100);
-
-            speedoMeter_pane.setMaxSize(appWidth / 4, appWidth / 4);
-
-            speedoMeter_pane.setTranslateX(-appWidth / 2 + speedoMeter_pane.getMaxWidth() / 2);
-            speedoMeter_pane.setTranslateY(carMeter_pane.getHeight() / 2 - speedoMeter_pane.getMaxHeight() / 2);
-
-            primaryStage.setResizable(false);
-            primaryStage.setTitle("CarMeter APP");
-            primaryStage.setScene(carMeter_scene);
-            primaryStage.setOnCloseRequest(event -> System.exit(0));
-            primaryStage.show();
         } catch (UnknownHostException ex) {
             //Adding audio file here 
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -568,6 +238,304 @@ public class CarMeter extends Application {
                 primaryStage.setOnCloseRequest(event -> System.exit(0));
             }
         }
+        carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+        clear.setOnAction(ActionEvent -> {
+
+            try {
+                FileWriter myWriter = new FileWriter("files/saved_trips.txt");
+                myWriter.write("");
+                myWriter.close();
+            } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
+            for (int i = 0; i < counter; i++) {
+                options[i].setText("");
+                options[i].setDisable(true);
+            }
+            counter = 0;
+        });
+
+        viewTrips_button.setOnAction((ActionEvent event) -> {
+            System.out.println("savedtrps clicked");
+
+            viewTrips_button.setDisable(true);
+            speedoMeter_pane.setOpacity(0.5);
+            start_button.setDisable(true);
+            carMeter_pane.getChildren().add(savedTrips_pane);
+            counter = 0;
+            try {
+                File myObj = new File("files/saved_trips.txt");
+                Scanner myReader = new Scanner(myObj);
+
+                trips = new String[5][6];
+
+                while (myReader.hasNextLine() && counter < 5) {
+                    String data = myReader.nextLine();
+                    trips[counter] = data.split("[;]");
+                    for (String a : trips[counter]) {
+                        System.out.println(a);
+                    }
+                    counter++;
+                }
+
+                myReader.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < 5; i++) {
+                options[i].setDisable(true);
+
+            }
+
+            for (int i = 0; i < counter; i++) {
+                options[i].setText(trips[i][0]);
+                options[i].setDisable(false);
+            }
+
+        });
+        start_button.setOnAction((ActionEvent event) -> {
+
+            if (connected_com) {
+                if (started) {
+
+                    viewTrips_button.setDisable(true);
+                    start_button.setDisable(true);
+                    speedoMeter_pane.setOpacity(0.5);
+                    carMeter_pane.getChildren().add(endTrip_pane);
+                    start_button.setText("start trip");
+                    started = false;
+                    long_end = Double.toString(longitude);
+                    lat_end = Double.toString(latitude);
+                    start_button.setDisable(true);
+                    flag_position = 0;
+
+                } else {
+                    started = true;
+
+                    start_button.setText("end trip");
+
+                    long_start = Double.toString(longitude);
+                    lat_start = Double.toString(latitude);
+                    start_button.setDisable(true);
+                    start_button.setDisable(false);
+
+                    flag_position = 1;
+                }
+
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("No GPS!!");
+                alert.setHeaderText("please connect GPS first to start your trip");
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (!result.isPresent()) {
+
+                } else if (result.get() == ButtonType.OK) {
+
+                }
+            }
+
+        });
+        back_button.setOnAction((ActionEvent event) -> {
+            carMeter_pane.getChildren().clear();
+            mp.createUI(carMeter_pane);
+            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+
+            viewTrips_button.setDisable(false);
+            start_button.setDisable(false);
+            speedoMeter_pane.setOpacity(1);
+            //speedoMeter_pane.setDisable(false);
+        });
+        back_button1.setOnAction((ActionEvent event) -> {
+            carMeter_pane.getChildren().clear();
+            mp.createUI(carMeter_pane);
+            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+            viewTrips_button.setDisable(false);
+            start_button.setDisable(false);
+            speedoMeter_pane.setOpacity(1);
+        });
+        viewTripBack_button.setOnAction((ActionEvent event) -> {
+            viewTrip_pane.getChildren().clear();
+            carMeter_pane.getChildren().clear();
+            mp.createUI(carMeter_pane);
+            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, savedTrips_pane);
+            savedTrips_pane.setOpacity(1);
+            vbox.setDisable(false);
+            back_button1.setDisable(false);
+            clear.setDisable(false);
+
+        });
+
+        trip_name.setOnMouseClicked((event) -> {
+            if (!text_cleared) {
+                trip_name.setText("");
+                text_cleared = true;
+            }
+        });
+        trip_name.onKeyTypedProperty().set((KeyEvent event) -> {
+            if (trip_name.getText() == "") {
+                save_button.setDisable(true);
+            } else {
+                save_button.setDisable(false);
+            }
+        });
+
+        options[0].setOnAction((ActionEvent event) -> {
+            System.out.println("I am in option 1");
+            dlat_start = Double.parseDouble(trips[0][1]);
+            dlong_start = Double.parseDouble(trips[0][2]);
+            dlat_end = Double.parseDouble(trips[0][3]);
+            dlong_end = Double.parseDouble(trips[0][4]);
+
+            System.out.println(dlong_start + " " + dlat_start + " " + dlong_end + " " + dlat_end); // for trial
+
+            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+
+            m.createUI(viewTrip_pane);
+            /*add this line in options after adding map*/
+            viewTrip_pane.getChildren().add(viewTripBack_button);
+            //viewTrip_pane.getChildren().add();
+            carMeter_pane.getChildren().add(viewTrip_pane);
+            vbox.setDisable(true);
+            back_button1.setDisable(true);
+            clear.setDisable(true);
+
+        });
+        options[1].setOnAction((ActionEvent event) -> {
+            System.out.println("I am in option 2");
+            dlat_start = Double.parseDouble(trips[1][1]);
+            dlong_start = Double.parseDouble(trips[1][2]);
+            dlat_end = Double.parseDouble(trips[1][3]);
+            dlong_end = Double.parseDouble(trips[1][4]);
+            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+            m.createUI(viewTrip_pane);
+            /*add this line in options after adding map*/
+            viewTrip_pane.getChildren().add(viewTripBack_button);
+            carMeter_pane.getChildren().add(viewTrip_pane);
+            vbox.setDisable(true);
+            back_button1.setDisable(true);
+            clear.setDisable(true);
+
+        });
+        options[2].setOnAction((ActionEvent event) -> {
+
+            System.out.println("I am in option 3");
+            dlat_start = Double.parseDouble(trips[2][1]);
+            dlong_start = Double.parseDouble(trips[2][2]);
+            dlat_end = Double.parseDouble(trips[2][3]);
+            dlong_end = Double.parseDouble(trips[2][4]);
+
+            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+            m.createUI(viewTrip_pane);
+
+            /*add this line in options after adding map*/
+            viewTrip_pane.getChildren().addAll(viewTripBack_button);
+            carMeter_pane.getChildren().addAll(viewTrip_pane);
+            vbox.setDisable(true);
+            back_button1.setDisable(true);
+            clear.setDisable(true);
+
+        });
+        options[3].setOnAction((ActionEvent event) -> {
+            System.out.println("I am in option 4");
+            dlat_start = Double.parseDouble(trips[3][1]);
+            dlong_start = Double.parseDouble(trips[3][2]);
+            dlat_end = Double.parseDouble(trips[3][3]);
+            dlong_end = Double.parseDouble(trips[3][4]);
+            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+            m.createUI(viewTrip_pane);
+            /*add this line in options after adding map*/
+            viewTrip_pane.getChildren().add(viewTripBack_button);
+            carMeter_pane.getChildren().add(viewTrip_pane);
+            vbox.setDisable(true);
+            back_button1.setDisable(true);
+            clear.setDisable(true);
+
+        });
+        options[4].setOnAction((ActionEvent event) -> {
+            System.out.println("I am in option 5");
+            dlat_start = Double.parseDouble(trips[4][1]);
+            dlong_start = Double.parseDouble(trips[4][2]);
+            dlat_end = Double.parseDouble(trips[4][3]);
+            dlong_end = Double.parseDouble(trips[4][4]);
+            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+            m.createUI(viewTrip_pane);
+            /*add this line in options after adding map*/
+            viewTrip_pane.getChildren().add(viewTripBack_button);
+            carMeter_pane.getChildren().add(viewTrip_pane);
+            vbox.setDisable(true);
+            back_button1.setDisable(true);
+            clear.setDisable(true);
+
+        });
+        save_button.setOnAction((ActionEvent event) -> {
+
+            time = "0.0";
+            if (counter == 5) {
+                trip_name.setText("your memory is full, please clear it to save another trip");
+                save_button.setDisable(true);
+
+            } else {
+                if ("".equals(trip_name.getText())) {
+                    trip_name.setText("Enter a trip name to save your trip!");
+                } else {
+
+                    if (counter <= 5) {
+                        writeTrips = trip_name.getText() + ";" + lat_start + ";" + long_start + ";" + lat_end + ";" + long_end + ";" + time + ";\n";
+                    }
+                    counter++;
+
+                    try {
+                        if (counter <= 5) {
+                            Files.write(Paths.get("files/saved_trips.txt"), writeTrips.getBytes(), StandardOpenOption.APPEND);
+                        } else {
+                            System.out.println("no room for another save");
+                        }
+                    } catch (IOException ex) {
+                        //exception handling left as an exercise for the reader
+                        Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
+
+                    }
+
+                    carMeter_pane.getChildren().clear();
+                    mp.createUI(carMeter_pane);
+                    carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+                    viewTrips_button.setDisable(false);
+                    start_button.setDisable(false);
+                    speedoMeter_pane.setOpacity(1);
+                    trip_name.setText("Entter Your trip name HERE!");
+                }
+                text_cleared = false;
+                save_button.setDisable(true);
+            }
+        });
+
+        cancel_button.setOnAction((event) -> {
+            carMeter_pane.getChildren().clear();
+            mp.createUI(carMeter_pane);
+            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button);
+            viewTrips_button.setDisable(false);
+            start_button.setDisable(false);
+            speedoMeter_pane.setOpacity(1);
+            trip_name.setText("Entter Your trip name HERE!");
+            text_cleared = false;
+        });
+
+        appHeight = carMeter_pane.getHeight();
+        appWidth = carMeter_pane.getWidth();
+
+        speedoMeter_pane.setMaxSize(appWidth / 4, appWidth / 4);
+        carMeter_scene.getStylesheets().add(getClass().getResource("/CSS/MainStyle.css").toString());
+        primaryStage.setResizable(false);
+        primaryStage.setTitle("CarMeter APP");
+        primaryStage.setScene(carMeter_scene);
+        primaryStage.getIcons().add(new Image("Images/ghost.PNG"));
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
+        primaryStage.show();
+
     }
 
     /**
@@ -595,7 +563,7 @@ public class CarMeter extends Application {
 
                             if ("RMC".equals(s.getSentenceId())) {
                                 RMCSentence rmc = (RMCSentence) s;
-                                speed = (rmc.getSpeed())*2;
+                                speed = (rmc.getSpeed()) * 2;
                                 gauge.setValue(speed);
                                 if (speed > 30) {
                                     audio.play_sound();
