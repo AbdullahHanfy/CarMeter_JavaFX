@@ -1,18 +1,12 @@
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package carmeter;
 
+import CommuniCation.ReadLine;
+import CommuniCation.SerialCommunication;
 import Map.*;
+import SpeedPackage.SpeedNode;
 import audioPck.AudioAlarm;
 import com.sun.javafx.application.LauncherImpl;
-import eu.hansolo.medusa.Gauge;
-import eu.hansolo.medusa.GaugeBuilder;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -42,16 +36,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import net.sf.marineapi.nmea.parser.SentenceFactory;
-import net.sf.marineapi.nmea.sentence.GGASentence;
-import net.sf.marineapi.nmea.sentence.RMCSentence;
-import net.sf.marineapi.nmea.sentence.Sentence;
-import net.sf.marineapi.nmea.sentence.SentenceValidator;
+
+
+
 
 /**
  *
@@ -62,11 +53,11 @@ import net.sf.marineapi.nmea.sentence.SentenceValidator;
  * @author Asmaa Saied
  */
 public class CarMeter extends Application {
-
+    
     GMap mp;
     private static final int COUNT_LIMIT = 10;
-    AudioAlarm audio;
-    SerialCommunication serialComm;
+    public static AudioAlarm audio;
+    public static SerialCommunication serialComm;
     String writeTrips;
     String long_start, lat_start, long_end, lat_end, time;
     double dlong_start, dlat_start, dlong_end, dlat_end;
@@ -78,7 +69,8 @@ public class CarMeter extends Application {
     public static boolean connected_com = false;
 
     boolean text_cleared = false;
-    Gauge gauge;
+//    Gauge gauge;
+    public static SpeedNode speedNode;
     //declaretion of carMeter_scene and it's componants
     Scene carMeter_scene;
     StackPane carMeter_pane = new StackPane();
@@ -143,15 +135,8 @@ public class CarMeter extends Application {
         }
         audio = new AudioAlarm();
 
-        gauge = GaugeBuilder.create().minValue(0).maxValue(220)
-                .skinType(Gauge.SkinType.DIGITAL)
-                .foregroundBaseColor(Color.rgb(0, 222, 249))
-                .barColor(Color.rgb(0, 222, 249))
-                .title("Speed")
-                .unit("Km / h")
-                .animated(true)
-                .build();
-        speedoMeter_pane.getChildren().add(gauge);
+        speedNode = new SpeedNode();
+        speedNode.createUI(speedoMeter_pane);
         savedTrips_pane.setMaxSize(.75 * appWidth, .75 * appHeight);
         endTrip_pane.setMaxSize(.5 * appWidth, .5 * appHeight);
         viewTrip_pane.setMaxSize(.5 * appWidth, .5 * appHeight);
@@ -383,94 +368,13 @@ public class CarMeter extends Application {
             }
         });
 
-        options[0].setOnAction((ActionEvent event) -> {
-            System.out.println("I am in option 1");
-            dlat_start = Double.parseDouble(trips[0][1]);
-            dlong_start = Double.parseDouble(trips[0][2]);
-            dlat_end = Double.parseDouble(trips[0][3]);
-            dlong_end = Double.parseDouble(trips[0][4]);
-
-            System.out.println(dlong_start + " " + dlat_start + " " + dlong_end + " " + dlat_end); // for trial
-
-            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-
-            m.createUI(viewTrip_pane);
-            /*add this line in options after adding map*/
-            viewTrip_pane.getChildren().add(viewTripBack_button);
-            //viewTrip_pane.getChildren().add();
-            carMeter_pane.getChildren().add(viewTrip_pane);
-            vbox.setDisable(true);
-            back_button1.setDisable(true);
-            clear.setDisable(true);
-
-        });
-        options[1].setOnAction((ActionEvent event) -> {
-            System.out.println("I am in option 2");
-            dlat_start = Double.parseDouble(trips[1][1]);
-            dlong_start = Double.parseDouble(trips[1][2]);
-            dlat_end = Double.parseDouble(trips[1][3]);
-            dlong_end = Double.parseDouble(trips[1][4]);
-            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-            m.createUI(viewTrip_pane);
-            /*add this line in options after adding map*/
-            viewTrip_pane.getChildren().add(viewTripBack_button);
-            carMeter_pane.getChildren().add(viewTrip_pane);
-            vbox.setDisable(true);
-            back_button1.setDisable(true);
-            clear.setDisable(true);
-
-        });
-        options[2].setOnAction((ActionEvent event) -> {
-
-            System.out.println("I am in option 3");
-            dlat_start = Double.parseDouble(trips[2][1]);
-            dlong_start = Double.parseDouble(trips[2][2]);
-            dlat_end = Double.parseDouble(trips[2][3]);
-            dlong_end = Double.parseDouble(trips[2][4]);
-
-            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-            m.createUI(viewTrip_pane);
-
-            /*add this line in options after adding map*/
-            viewTrip_pane.getChildren().addAll(viewTripBack_button);
-            carMeter_pane.getChildren().addAll(viewTrip_pane);
-            vbox.setDisable(true);
-            back_button1.setDisable(true);
-            clear.setDisable(true);
-
-        });
-        options[3].setOnAction((ActionEvent event) -> {
-            System.out.println("I am in option 4");
-            dlat_start = Double.parseDouble(trips[3][1]);
-            dlong_start = Double.parseDouble(trips[3][2]);
-            dlat_end = Double.parseDouble(trips[3][3]);
-            dlong_end = Double.parseDouble(trips[3][4]);
-            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-            m.createUI(viewTrip_pane);
-            /*add this line in options after adding map*/
-            viewTrip_pane.getChildren().add(viewTripBack_button);
-            carMeter_pane.getChildren().add(viewTrip_pane);
-            vbox.setDisable(true);
-            back_button1.setDisable(true);
-            clear.setDisable(true);
-
-        });
-        options[4].setOnAction((ActionEvent event) -> {
-            System.out.println("I am in option 5");
-            dlat_start = Double.parseDouble(trips[4][1]);
-            dlong_start = Double.parseDouble(trips[4][2]);
-            dlat_end = Double.parseDouble(trips[4][3]);
-            dlong_end = Double.parseDouble(trips[4][4]);
-            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
-            m.createUI(viewTrip_pane);
-            /*add this line in options after adding map*/
-            viewTrip_pane.getChildren().add(viewTripBack_button);
-            carMeter_pane.getChildren().add(viewTrip_pane);
-            vbox.setDisable(true);
-            back_button1.setDisable(true);
-            clear.setDisable(true);
-
-        });
+        options[0].setOnAction((ActionEvent event) -> {show_trip(0);});
+        options[1].setOnAction((ActionEvent event) -> {show_trip(1);});
+        options[2].setOnAction((ActionEvent event) -> {show_trip(2);});
+        options[3].setOnAction((ActionEvent event) -> {show_trip(3);});
+        options[4].setOnAction((ActionEvent event) -> {show_trip(4);});
+        
+        
         save_button.setOnAction((ActionEvent event) -> {
 
             time = "0.0";
@@ -544,54 +448,25 @@ public class CarMeter extends Application {
     public static void main(String[] args) {
         LauncherImpl.launchApplication(CarMeter.class, MyPreloader.class, args);
     }
+    
+    
+   private void show_trip(int index)
+   {
+       System.out.println("I am in option 5");
+            dlat_start = Double.parseDouble(trips[index][1]);
+            dlong_start = Double.parseDouble(trips[index][2]);
+            dlat_end = Double.parseDouble(trips[index][3]);
+            dlong_end = Double.parseDouble(trips[index][4]);
+            VeiwTripMap m = new VeiwTripMap(dlat_start, dlong_start, dlat_end, dlong_end);
+            m.createUI(viewTrip_pane);
+            /*add this line in options after adding map*/
+            viewTrip_pane.getChildren().add(viewTripBack_button);
+            carMeter_pane.getChildren().add(viewTrip_pane);
+            vbox.setDisable(true);
+            back_button1.setDisable(true);
+            clear.setDisable(true);
+   }
 
-    class ReadLine implements Runnable {
-
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(10);
-                    while (serialComm.buf != null && ((serialComm.temp = serialComm.buf.readLine()) != null)) {
-
-                        if (SentenceValidator.isValid(serialComm.temp)) {
-                            //System.out.println(serialComm.temp );
-
-                            SentenceFactory sf = SentenceFactory.getInstance();
-                            //if (sf.hasParser(serialComm.temp)){
-                            Sentence s = sf.createParser(serialComm.temp);
-
-                            if ("RMC".equals(s.getSentenceId())) {
-                                RMCSentence rmc = (RMCSentence) s;
-                                speed = (rmc.getSpeed()) * 2;
-                                gauge.setValue(speed);
-                                if (speed > 30) {
-                                    audio.play_sound();
-                                } else {
-                                    audio.stop_sound();
-                                }
-                                System.out.println("RMC speed: " + rmc.getSpeed());
-
-                            } else if ("GGA".equals(s.getSentenceId())) {
-                                GGASentence gga = (GGASentence) s;
-                                latitude = gga.getPosition().getLatitude();
-                                longitude = gga.getPosition().getLongitude();
-                                connected_com = true;
-                                //System.out.println("latitude: " + latitude);
-                                //System.out.println(",longitude: " + longitude);
-                                System.out.println("GGA position: " + gga.getPosition());
-                                flag_position = 1;
-                            }
-                            //}
-                        }
-                    }
-                } catch (Exception ex) {
-                    //ex.printStackTrace();
-                    System.out.println("please connect your mobile or make sure or if you are already connected make sure that you have gps now connected on your device");
-                }
-            }
-
-        }
-    }
+    
 
 }

@@ -81,13 +81,6 @@ public class VeiwTripMap implements MapComponentInitializedListener {
                 try {
                     Thread.sleep(2000);
                     Platform.runLater(() -> {
-                        ////////////////////////    TODO pelase handle the showing of marker at start of applicaiton\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-                        System.out.println("start Data od my location");
-                        System.out.println(this.lat_start);
-                        System.out.println(this.lng_start);
-                        System.out.println(this.lat_end);
-                        System.out.println(this.lng_end);
-                        System.out.println("END Data od my location");
                         markerOptionsStart = new MarkerOptions();
                         markerOptionsStart.position(new LatLong(this.lat_start, this.lng_start)).visible(Boolean.TRUE).title("Start").label("S");
                         Marker markerStart = new Marker(markerOptionsStart);
@@ -100,8 +93,7 @@ public class VeiwTripMap implements MapComponentInitializedListener {
                     
                          map.setCenter(new LatLong((lat_start+lat_end)/2, (lng_start+lng_end)/2));
                     });
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } catch (InterruptedException ex) {
                 }
             }
         });
