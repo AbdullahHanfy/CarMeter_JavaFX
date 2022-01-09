@@ -9,10 +9,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Enumeration;
-/**
- *
- * @author Hanna Nabil
- */
+
 public class SerialCommunication  {
     BufferedReader buf;
     int flag =0;
