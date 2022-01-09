@@ -42,7 +42,7 @@ public class ReadLine implements Runnable {
 
                             if ("RMC".equals(s.getSentenceId())) {
                                 RMCSentence rmc = (RMCSentence) s;
-                                speed = (rmc.getSpeed()) * 2;
+                                speed = ( (rmc.getSpeed()) > 0 ) ? ( (rmc.getSpeed()) * 2 ) : (rmc.getSpeed());
                                 speedNode.setSpeed(speed);
                                 if (speed > 30) {
                                     audio.play_sound();
