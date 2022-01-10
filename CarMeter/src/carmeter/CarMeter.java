@@ -20,6 +20,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.event.ActionEvent;
 
@@ -30,6 +31,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -63,7 +65,8 @@ public class CarMeter extends Application {
     double appHeight = 500;
     double appWidth = 800;
     boolean started = false;
-    public static boolean connected_com = false;
+    public static boolean gps_vaild_data = false;
+    public static boolean comm_port_coneected = false;
 
     boolean text_cleared = false;
 //    Gauge gauge;
@@ -79,10 +82,13 @@ public class CarMeter extends Application {
     Button start_button = new Button("start trip");
 
     /*Adding refresh button*/
-    Image img;
-    ImageView view;
+    Image internet_img;
+    Image serial_img;
+    ImageView internet_view;
+    ImageView serial_view;
     //Creating a Button
-    Button refresh_map_button = new Button();
+    Button refresh_map_button;
+    Button refresh_serial_button;
 
     Button back_button = new Button("back");
     Button viewTripBack_button = new Button("back");
@@ -112,19 +118,34 @@ public class CarMeter extends Application {
     @Override
     public void init() throws Exception {
         /*Adding refresh button*/
-        img = new Image("Images/refresh.png");
-        view = new ImageView(img);
-        view.setFitHeight(40);
-        view.setPreserveRatio(true);
+        internet_img = new Image("Images/refresh.png");
+        serial_img = new Image("Images/refresh2.png");
+        internet_view = new ImageView(internet_img);
+        internet_view.setFitHeight(40);
+        internet_view.setPreserveRatio(true);
+
+        serial_view = new ImageView(serial_img);
+        serial_view.setFitHeight(40);
+        serial_view.setPreserveRatio(true);
         //Creating a Button
         refresh_map_button = new Button();
+        refresh_map_button.setTooltip(new Tooltip("Refresh The map"));
         //Setting the size of the button
         refresh_map_button.setMaxSize(40, 40);
         //Setting a graphic to the button
-        refresh_map_button.setGraphic(view);
-        refresh_map_button.setId("refresh_map_button");
+        refresh_map_button.setGraphic(internet_view);
         refresh_map_button.setTranslateX(appWidth / 2 - 80);
         refresh_map_button.setTranslateY(-appHeight / 2 + 25);
+
+        //Creating a Button
+        refresh_serial_button = new Button();
+        refresh_serial_button.setTooltip(new Tooltip("Refresh The GPS"));
+        //Setting the size of the button
+        refresh_serial_button.setMaxSize(40, 40);
+        //Setting a graphic to the button
+        refresh_serial_button.setGraphic(serial_view);
+        refresh_serial_button.setTranslateX(appWidth / 2 - 145);
+        refresh_serial_button.setTranslateY(-appHeight / 2 + 25);
 
         // Perform some heavy lifting (i.e. database start, check for application updates, etc. )
         for (int i = 1; i <= COUNT_LIMIT; i++) {
@@ -134,7 +155,6 @@ public class CarMeter extends Application {
             Thread.sleep(500);
         }
         audio = new AudioAlarm();
-
         speedNode = new SpeedNode();
         speedNode.createUI(speedoMeter_pane);
         savedTrips_pane.setMaxSize(.75 * appWidth, .75 * appHeight);
@@ -157,11 +177,8 @@ public class CarMeter extends Application {
         viewTripBack_button.setId("viewTripBack_button");
         save_button.setDisable(true);
         carMeter_scene = new Scene(carMeter_pane, appWidth, appHeight);
-
         endTrip_pane.getChildren().addAll(back_button, trip_name, save_button, cancel_button);
-
         savedTrips_pane.getChildren().addAll(back_button1, vbox, clear);
-
         vbox.setTranslateY(50);
         vbox.setTranslateX(50);
         vbox.setPadding(new Insets(25));
@@ -174,39 +191,26 @@ public class CarMeter extends Application {
             VBox.setMargin(options[i], new Insets(0, 0, 0, 8));
             vbox.getChildren().add(options[i]);
         }
-
         try {
-
             serialComm = new SerialCommunication();
-
             thread_readLine = new Thread(new ReadLine());
-
-            //thread_readLine.start();
         } catch (Exception ex) {
             System.out.println("Init Exception");
-            ex.printStackTrace();
         }
-        counter=0;
+        counter = 0;
         try {
-                File myObj = new File("files/saved_trips.txt");
-                Scanner myReader = new Scanner(myObj);
-
-                trips = new String[5][6];
-
-                while (myReader.hasNextLine() && counter < 5) {
-                    String data = myReader.nextLine();
-                    trips[counter] = data.split("[;]");
-                    for (String a : trips[counter]) {
-                        System.out.println(a);
-                    }
-                    counter++;
-                }
-
-                myReader.close();
-            } catch (FileNotFoundException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
+            File myObj = new File("files/saved_trips.txt");
+            Scanner myReader = new Scanner(myObj);
+            trips = new String[5][6];
+            while (myReader.hasNextLine() && counter < 5) {
+                String data = myReader.nextLine();
+                counter++;
             }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
 
     }
 
@@ -218,11 +222,22 @@ public class CarMeter extends Application {
             System.out.println("Error here");
 //                    Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        if (thread_readLine.isAlive() == false) {
-            thread_readLine.start();
-        } else {
-            thread_readLine.resume();
+        if(!comm_port_coneected)
+        {
+            //Adding audio file here 
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No port");
+            alert.setHeaderText("No GPS");
+            alert.setContentText("Please ! Reconnect GPS and Press refresh Button above");
+            alert.showAndWait();
+        }
+        else
+        {
+            if (thread_readLine.isAlive() == false) {
+                thread_readLine.start();
+            } else {
+                thread_readLine.resume();
+            }  
         }
 
         ///////////////// DELETE BUTTON ACTION  \\\\\\\\\\\\\\\\\\
@@ -232,33 +247,36 @@ public class CarMeter extends Application {
             mp.createUI(carMeter_pane);
         } catch (UnknownHostException ex) {
             //Adding audio file here 
-            Alert alert = new Alert(Alert.AlertType.ERROR);
+            Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Internet Connection!!");
             alert.setHeaderText("No Internet Coneection");
             alert.setContentText("Please ! Reconnect and Press refresh Button above");
 
             Optional<ButtonType> result = alert.showAndWait();
-            if (!result.isPresent()) {
-                primaryStage.setOnCloseRequest(event -> System.exit(0));
-            } else if (result.get() == ButtonType.OK) {
-                primaryStage.setOnCloseRequest(event -> System.exit(0));
-            }
+//            if (!result.isPresent()) {
+//                primaryStage.setOnCloseRequest(event -> System.exit(0));
+//            } else if (result.get() == ButtonType.OK) {
+//                primaryStage.setOnCloseRequest(event -> System.exit(0));
+//            }
         }
+        refresh_serial_button.setOnAction(ActionEvent -> {
+//            serialComm.disconnect();
+            try {
+                serialComm.connect();//contains thread
+            } catch (Exception ex) {
+                System.out.println("Error here");
+            }
+            if (thread_readLine.isAlive() == false) {
+                thread_readLine.start();
+                System.out.println("start thread");
+            } else {
+                thread_readLine.resume();
+                System.out.println("resume thread");
+            }
+
+        });
 
         refresh_map_button.setOnAction(ActionEvent -> {
-//            serialComm.disconnect();
-//            try {
-//                serialComm.connect();//contains thread
-//            } catch (Exception ex) {
-//                System.out.println("Error here");
-////                    Logger.getLogger(CarMeter.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//
-//            if (thread_readLine.isAlive() == false) {
-//                thread_readLine.start();
-//            } else {
-//                thread_readLine.resume();
-//            }
             ///////////////// DELETE BUTTON ACTION  \\\\\\\\\\\\\\\\\\
             try {
                 InetAddress ip = InetAddress.getByName("www.javatpoint.com");
@@ -266,20 +284,20 @@ public class CarMeter extends Application {
                 rebuild_main_scence();
             } catch (UnknownHostException ex) {
                 //Adding audio file here 
-                Alert alert = new Alert(Alert.AlertType.ERROR);
+                Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Internet Connection!!");
                 alert.setHeaderText("No Internet Coneection");
                 alert.setContentText("Please ! Reconnect to internet and try Agian");
 
                 Optional<ButtonType> result = alert.showAndWait();
-                if (!result.isPresent()) {
-                    primaryStage.setOnCloseRequest(event -> System.exit(0));
-                } else if (result.get() == ButtonType.OK) {
-                    primaryStage.setOnCloseRequest(event -> System.exit(0));
-                }
+//                if (!result.isPresent()) {
+//                    primaryStage.setOnCloseRequest(event -> System.exit(0));
+//                } else if (result.get() == ButtonType.OK) {
+//                    primaryStage.setOnCloseRequest(event -> System.exit(0));
+//                }
             }
         });
-        carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, refresh_map_button);
+        carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, refresh_map_button, refresh_serial_button);
         clear.setOnAction(ActionEvent -> {
 
             try {
@@ -299,7 +317,7 @@ public class CarMeter extends Application {
 
         viewTrips_button.setOnAction((ActionEvent event) -> {
             System.out.println("savedtrps clicked");
-            
+
             viewTrips_button.setDisable(true);
             speedoMeter_pane.setOpacity(0.5);
             start_button.setDisable(true);
@@ -339,7 +357,7 @@ public class CarMeter extends Application {
         });
         start_button.setOnAction((ActionEvent event) -> {
 
-            if (connected_com) {
+            if (gps_vaild_data) {
                 if (started) {
 
                     viewTrips_button.setDisable(true);
@@ -390,7 +408,7 @@ public class CarMeter extends Application {
             viewTrip_pane.getChildren().clear();
             carMeter_pane.getChildren().clear();
             mp.createUI(carMeter_pane);
-            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, savedTrips_pane,refresh_map_button);
+            carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, savedTrips_pane, refresh_map_button, refresh_serial_button);
             savedTrips_pane.setOpacity(1);
             vbox.setDisable(false);
             back_button1.setDisable(false);
@@ -508,7 +526,7 @@ public class CarMeter extends Application {
     private void rebuild_main_scence() {
         carMeter_pane.getChildren().clear();
         mp.createUI(carMeter_pane);
-        carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, refresh_map_button);
+        carMeter_pane.getChildren().addAll(speedoMeter_pane, start_button, viewTrips_button, refresh_map_button, refresh_serial_button);
         viewTrips_button.setDisable(false);
         start_button.setDisable(false);
         speedoMeter_pane.setOpacity(1);

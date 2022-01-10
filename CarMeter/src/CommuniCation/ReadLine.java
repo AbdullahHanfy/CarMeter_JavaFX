@@ -6,7 +6,7 @@
 package CommuniCation;
 
 import static carmeter.CarMeter.audio;
-import static carmeter.CarMeter.connected_com;
+import static carmeter.CarMeter.gps_vaild_data;
 import static carmeter.CarMeter.flag_position;
 import static carmeter.CarMeter.latitude;
 import static carmeter.CarMeter.longitude;
@@ -30,7 +30,7 @@ public class ReadLine implements Runnable {
         public void run() {
             while (true) {
                 try {
-                    Thread.sleep(10);
+                  Thread.sleep(10);
                     while (serialComm.buf != null && ((serialComm.temp = serialComm.buf.readLine()) != null)) {
 
                         if (SentenceValidator.isValid(serialComm.temp)) {
@@ -55,7 +55,7 @@ public class ReadLine implements Runnable {
                                 GGASentence gga = (GGASentence) s;
                                 latitude = gga.getPosition().getLatitude();
                                 longitude = gga.getPosition().getLongitude();
-                                connected_com = true;
+                                gps_vaild_data = true;
                                 //System.out.println("latitude: " + latitude);
                                 //System.out.println(",longitude: " + longitude);
                                 System.out.println("GGA position: " + gga.getPosition());
